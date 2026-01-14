@@ -26,9 +26,24 @@ function initDataTableUEEtudiant() {
                                 return `<em>${nomMaquetteParts.slice(0, -1).join(' ')}</em>`;
                             } 
                         },
-                        { data: 'nombreEtudiants', render: function(data) { return `<div class="text-center"><span class="badge badge-light-primary">${data}</span></div>`; } },
-                        { data: 'id', render: function(data, type, row) {
-                            return `<button class="btn btn-sm btn-primary" onclick="loadEtudiantsUE(${data}, '${row.nomUE}')">Voir les étudiants</button>`;
+                        { data: 'nombreEtudiantsTotal', render: function(data) { return `<div class="text-center"><span class="badge badge-light-primary">${data}</span></div>`; } },
+                        { data: 'etudiantsNiveauDifferent', render: function(data) { return `<div class="text-center"><span class="badge badge-light-danger">${data}</span></div>`; } },
+                        { data: 'idUE', render: function(data, type, row) {
+                            return ` <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading${data}">
+                                    <button class="accordion-button collapsed btn btn-sm btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${data}" aria-expanded="false" aria-controls="collapse${data}">
+                                        Actions
+                                    </button>
+                                </h2>
+                                <div id="collapse${data}" class="accordion-collapse collapse" aria-labelledby="heading${data}" data-bs-parent="#accordionUE${data}">
+                                        <ul class="list-group">
+                                            <li class="list-group-item" onclick="loadEtudiantsUE(${data}, '${row.nomUE}', ${row.idOption}, ${row.idMaquette}, ${row.idNiveauFormation})" style="cursor:pointer;" ><a class="link link-primary fw-bold">Voir étudiants</a></li>
+                                            <li class="list-group-item" style="cursor:pointer;"><a href="http://192.168.195.145/centreCalcul/dist/views/listeEcViewNote.php?idUe=${row.idUE}&idOpt=${row.idOption}&id=${row.idMaquette}" class="link link-primary fw-bold">Voir notes</a></li>
+                                        </ul>
+                                </div>
+
+                            </div>
+                            `;
                         }, orderable: false, searchable: false }
                     ],
                     paging: true,
@@ -45,11 +60,11 @@ function initDataTableUEEtudiant() {
                         infoEmpty: "Aucune entrée disponible",
                         infoFiltered: "(filtré à partir de _MAX_ entrées totales)",
                         search: `<!--begin::Svg Icon | path: assets/media/icons/duotune/general/gen004.svg-->
-<span class="svg-icon svg-icon-muted svg-icon-2hx"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-<path d="M21.7 18.9L18.6 15.8C17.9 16.9 16.9 17.9 15.8 18.6L18.9 21.7C19.3 22.1 19.9 22.1 20.3 21.7L21.7 20.3C22.1 19.9 22.1 19.3 21.7 18.9Z" fill="black"/>
-<path opacity="0.3" d="M11 20C6 20 2 16 2 11C2 6 6 2 11 2C16 2 20 6 20 11C20 16 16 20 11 20ZM11 4C7.1 4 4 7.1 4 11C4 14.9 7.1 18 11 18C14.9 18 18 14.9 18 11C18 7.1 14.9 4 11 4ZM8 11C8 9.3 9.3 8 11 8C11.6 8 12 7.6 12 7C12 6.4 11.6 6 11 6C8.2 6 6 8.2 6 11C6 11.6 6.4 12 7 12C7.6 12 8 11.6 8 11Z" fill="black"/>
-</svg></span>
-<!--end::Svg Icon-->`,
+                            <span class="svg-icon svg-icon-muted svg-icon-2hx"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M21.7 18.9L18.6 15.8C17.9 16.9 16.9 17.9 15.8 18.6L18.9 21.7C19.3 22.1 19.9 22.1 20.3 21.7L21.7 20.3C22.1 19.9 22.1 19.3 21.7 18.9Z" fill="black"/>
+                            <path opacity="0.3" d="M11 20C6 20 2 16 2 11C2 6 6 2 11 2C16 2 20 6 20 11C20 16 16 20 11 20ZM11 4C7.1 4 4 7.1 4 11C4 14.9 7.1 18 11 18C14.9 18 18 14.9 18 11C18 7.1 14.9 4 11 4ZM8 11C8 9.3 9.3 8 11 8C11.6 8 12 7.6 12 7C12 6.4 11.6 6 11 6C8.2 6 6 8.2 6 11C6 11.6 6.4 12 7 12C7.6 12 8 11.6 8 11Z" fill="black"/>
+                            </svg></span>
+                            <!--end::Svg Icon-->`,
                         searchPlaceholder: "Rechercher...",
                         searchBuilder: "Construire une recherche",
                         paginate: {
@@ -132,7 +147,7 @@ function updateFilters(rows) {
     });
 }
 
-function loadEtudiantsUE(idUE, nomUE) {
+function loadEtudiantsUE(idUE, nomUE, idOption, idMaquette, idNiveauFormation) {
     document.getElementById('etudiantsUEModalLabel').textContent = `Étudiants inscrits à l'UE: ${nomUE}`;
     fetch(`controllerUEEtudiant.php?action=listEtudiantsByUE&idUE=${idUE}`)
         .then(response => response.json())
@@ -160,10 +175,13 @@ function loadEtudiantsUE(idUE, nomUE) {
                             { data: 'matricule', title: '<strong>Matricule</strong>' },
                             { data: 'nom', title: '<strong>Nom</strong>' },
                             { data: 'prenom', title: '<strong>Prénom</strong>' },
+                            {data: 'niveau', title: '<strong>Classe</strong>', render: function(data, type, row) {
+                                return `<span class="badge badge-light-primary">${row.niveau} ${row.option}</span>`;
+                            }},
                             { data: 'nationalite', title: '<strong>Nationalité</strong>' },
-                            { data: 'sexe', title: '<strong>Sexe</strong>' },
+                            // { data: 'sexe', title: '<strong>Sexe</strong>' },
                             { data: 'id', title: '<strong>Actions</strong>', render: function(data, type, row) {
-                                return `<a href="profileEtudiant.php?matricule=${row.matricule}" class="btn btn-sm btn-primary">Voir le profil</a>`;
+                                return `<a href="http://192.168.195.145/centreCalcul/dist/views/profil1.php?matricule=${row.matricule}&idOpt=${idOption}&idN=${idNiveauFormation}&idMaq=${idMaquette}" class="link link-primary fw-bold">Voir le profil</a>`;
                             }, orderable: false, searchable: false }
                         ],
                         paging: true,

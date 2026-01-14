@@ -53,28 +53,67 @@ switch ($action) {
 }
 // Fonction pour récupérer les UE et leurs inscriptions pédagogiques
 function getUEsWithInscriptions($pdo) {
-    $sql = "SELECT DISTINCT ue.code, ue.id, ue.nom as nomUE, maquette.nom as nomMaquette,
-    COUNT(DISTINCT sipu.matricule) as nombreEtudiants
-    FROM ue 
-    JOIN maquette_ue ON ue.id = maquette_ue.id_ue
-    JOIN maquette ON maquette_ue.id_maquette = maquette.id
-    LEFT JOIN scolarite_inscription_pedagogique_ue sipu ON sipu.idUE = ue.id
-    JOIN scolarite_inscription_pedagogique sip ON sip.id = sipu.idInscriptionPedagogique AND sip.statut = 1
-    WHERE maquette.idEtat = 3 AND sip.idAnneeUniversitaire = (SELECT MAX(id) FROM scolarite_anneeuniversitaire)
-    GROUP BY ue.code, ue.id, ue.nom, maquette.nom";
+    $sql = "SELECT 
+    ue.id AS idUE,
+    ue.code, 
+    ue.nom AS nomUE, 
+    m.nom AS nomMaquette,
+    m.idOption,
+    m.id AS idMaquette,
+    o.idNiveauFormation,
+    COUNT(DISTINCT sipu.id) AS nombreEtudiantsTotal,
+    -- Calcul des étudiants en rattrapage / niveau différent
+    COUNT(DISTINCT CASE 
+        WHEN si.idOption != m.idOption THEN sipu.matricule 
+    END) AS etudiantsNiveauDifferent
+FROM ue
+-- On part de l'UE et on joint les maquettes (une UE peut être dans plusieurs maquettes)
+JOIN maquette_ue mue ON ue.id = mue.id_ue
+JOIN maquette m ON mue.id_maquette = m.id
+Join options o on m.idOption = o.id
+-- LEFT JOIN pour ne pas perdre les UE sans inscriptions
+LEFT JOIN scolarite_inscription_pedagogique_ue sipu ON ue.id = sipu.idUE
+LEFT JOIN scolarite_inscription_pedagogique sip ON sipu.idInscriptionPedagogique = sip.id 
+LEFT JOIN scolarite_inscription si on sip.idInscription = si.id
+    AND sip.statut = 1
+WHERE m.idEtat = 3
+GROUP BY 
+    ue.id,
+    ue.code, 
+    ue.nom, 
+    m.nom,
+    m.idOption;";
     $stmt = $pdo->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// Fonction pour récupérer les etudiants inscrits à une UE spécifique
 function getEtudiantsByUE($pdo, $idUE) {
-    $sql = "SELECT e.* FROM scolarite_etudiants e
-    JOIN scolarite_inscription_pedagogique_ue sipu ON e.matricule = sipu.matricule
-    WHERE sipu.idUE = :idUE";
+    $sql = "SELECT sipu.matricule from scolarite_inscription_pedagogique_ue sipu
+WHERE sipu.idUE = :idUE";
     $stmt = $pdo->prepare($sql);
     $stmt->bindParam(':idUE', $idUE, PDO::PARAM_INT);
     $stmt->execute();
+    $matricules = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    $etudiants = [];
+    foreach ($matricules as $matricule) {
+        $etudiant = getEtudiant($pdo, $matricule);
+        if ($etudiant) {
+            $etudiants[] = $etudiant[0];
+        }
+    }
+    return $etudiants;
+}
+// Fonction pour récupérer les informations d'un étudiant par son matricule
+function getEtudiant($pdo, $matricule) {
+    $sql = "SELECT scolarite_etudiants.*,options.option, niveau FROM scolarite_etudiants 
+    join scolarite_inscription_pedagogique on scolarite_etudiants.matricule = scolarite_inscription_pedagogique.matricule
+    JOIN options ON scolarite_inscription_pedagogique.idOption = options.id
+    join niveauformation niv on options.idNiveauFormation = niv.id
+    WHERE scolarite_etudiants.matricule = :matricule
+    ORDER BY scolarite_inscription_pedagogique.dateEnregistrement LIMIT 1";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute(['matricule' => $matricule]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 

@@ -36,7 +36,8 @@ function searchEtudiant($pdo, $matricule) {
     join scolarite_inscription_pedagogique on scolarite_etudiants.matricule = scolarite_inscription_pedagogique.matricule
     JOIN options ON scolarite_inscription_pedagogique.idOption = options.id
     join niveauformation niv on options.idNiveauFormation = niv.id
-    WHERE scolarite_etudiants.matricule = :matricule";
+    WHERE scolarite_etudiants.matricule = :matricule
+    ORDER BY scolarite_inscription_pedagogique.dateEnregistrement LIMIT 1";
     $stmt = $pdo->prepare($sql);
     $stmt->execute(['matricule' => $matricule]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
