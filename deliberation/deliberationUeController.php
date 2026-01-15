@@ -87,6 +87,17 @@ switch ($action) {
             echo json_encode(['error' => 'idUE parameter is required']);
         }
         break;
+    case 'getStatUE':
+        $ueId = $_GET['ueId'] ?? null;
+        if ($ueId) {
+            $stats = getStatUE($pdo, $ueId);
+            header('Content-Type: application/json');
+            echo json_encode($stats);
+        } else {
+            http_response_code(400);
+            echo json_encode(['error' => 'ueId parameter is required']);
+        }
+        break;
     default:
         http_response_code(404);
         echo json_encode(['error' => 'Action not found']);
@@ -271,7 +282,7 @@ WHERE m.idEtat = 3";
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 function getEtudiantByUE($pdo, $idUE) {
-    $sql = "SELECT se.matricule, se.prenom, se.nom, pn.note, ec.nom FROM scolarite_inscription_pedagogique_ue sipu
+    $sql = "SELECT DISTINCT se.matricule, se.prenom, se.nom as nomEtudiant, pn.note, ec.nom as nomEc FROM scolarite_inscription_pedagogique_ue sipu
     JOIN scolarite_inscription_pedagogique sip ON sipu.idInscriptionPedagogique = sip.id
     JOIN scolarite_etudiants se ON sipu.matricule = se.matricule
     JOIN scolarite_inscription si on sip.idInscription = si.id
@@ -281,6 +292,31 @@ function getEtudiantByUE($pdo, $idUE) {
     WHERE pn.idUe = :idUE";
     $stmt = $pdo->prepare($sql);
     $stmt->bindParam(':idUE', $idUE, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getStatUE($pdo, $ueId) {
+    $sql = "SELECT
+    COUNT(DISTINCT sipu.matricule) AS totalEtudiants,
+    AVG(pn.note) AS moyenneGenerale,
+    COUNT(DISTINCT CASE WHEN pn.note >= 10 THEN sipu.matricule END) AS nombreReussites,
+    COUNT(DISTINCT CASE WHEN pn.note < 10 THEN sipu.matricule END) AS nombreEchecs,
+    COUNT(DISTINCT CASE WHEN pn.non_compose = 1 THEN sipu.matricule END) AS nombreNonComposes,
+    COUNT(DISTINCT CASE WHEN pn.non_compose = 0 THEN sipu.matricule END) AS nombreComposes,
+    MAX(pn.note) AS meilleureNote,
+    MIN(pn.note) AS moinsBonneNote
+FROM scolarite_inscription_pedagogique_ue sipu
+    JOIN scolarite_inscription_pedagogique sip ON sipu.idInscriptionPedagogique = sip.id
+    JOIN scolarite_etudiants se ON sipu.matricule = se.matricule
+    JOIN scolarite_inscription si on sip.idInscription = si.id
+    AND sip.statut = 1
+    JOIN pedagogie_notes pn ON sip.id = pn.idInscription
+    JOIN ec ON ec.id = pn.idEc
+WHERE pn.idUe = :ueId
+GROUP BY pn.idUe;";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':ueId', $ueId, PDO::PARAM_INT);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }

@@ -91,12 +91,12 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
 
                     <div class="hover-scroll-overlay-y my-5 my-lg-5" id="kt_aside_menu_wrapper" data-kt-scroll="true" data-kt-scroll-activate="{default: false, lg: true}" data-kt-scroll-height="auto" data-kt-scroll-dependencies="#kt_aside_logo, #kt_aside_footer" data-kt-scroll-wrappers="#kt_aside_menu" data-kt-scroll-offset="0">
                         <div class="menu menu-column menu-title-gray-800 menu-state-title-primary menu-state-icon-primary menu-state-bullet-primary menu-arrow-gray-500" id="#kt_aside_menu" data-kt-menu="true" id="menu">
-                                <div class="menu-item">
-                                    <div class="menu-content pb-2">
-                                        <span class="menu-section text-muted text-uppercase fs-8 ls-1">Dashboard</span>
-                                        <div id="user"></div>
-                                    </div>
+                            <div class="menu-item">
+                                <div class="menu-content pb-2">
+                                    <span class="menu-section text-muted text-uppercase fs-8 ls-1">Dashboard</span>
+                                    <div id="user"></div>
                                 </div>
+                            </div>
 
                             <div class="menu-item nav" id="menu">
                                 <?php if ($current_user == 1) { ?>
@@ -289,28 +289,95 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
                                     </div>
                                     <div class="card-body pt-4 bg-light px-5">
                                         <div class="table-responsive row d-flex flex-wrap justify-content-between">
-                                            <div id="ecContainer" class="card bg-white col-8">
-                                                <div class="card-header border-1 pt-5">
-                                                    <h1>Stats</h1>
-                                                    <div class="d-flex justify-content-between align-items-center">
-                                                        <div class="m-1 bg-light-success px-3 py-2 rounded">
-                                                            <span class="fw-bold">Meilleure note :</span>
-                                                            <span id="meilleureNoteUE">0</span>
-                                                        </div>
-                                                        <div class="m-1 bg-light-danger px-3 py-2 rounded">
-                                                            <span class="fw-bold">Moins bonne note :</span>
-                                                            <span id="moinsBonneNoteUE">0</span>
-                                                        </div>
+                                            <div id="ueContainer" class="card bg-light-primary col col-12">
+                                                <div class="card-header border-1">
+                                                    <h1 class="card-title">Liste des UE</h1>
+                                                    <div class="card-toolbar" id="intervalleNotesContainer">
                                                         
-                                                        <div class="m-1 bg-light-info px-3 py-2 rounded">
-                                                            <span class="fw-bold">Nbre d'étudiants :</span>
-                                                            <span id="nombreEtudiants">0</span>
-                                                        </div>
-                                                        <div class="borber-end-4 m-1 bg-light-primary px-3 py-2 rounded">
-                                                            <span class="fw-bold">Moy :</span>
-                                                            <span id="moyenneUE">0</span>
-                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="table-responsive" id="ueBoutonContainer">
+                                                        
+                                                        <!-- <table class="table align-middle table-row-dashed fs-6 gy-5" id="ueTable">
+                                                            <thead>
+                                                                <tr class="text-start text-gray-400 fw-bolder fs-7 text-uppercase gs-0">
+                                                                    <th class="min-w-100px">Unités d'enseignements</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody class="fw-bold text-gray-600" id="ueTableBody">
+                                                            </tbody>
+                                                        </table> -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="ecContainer" class="card bg-white col-12">
+                                                <div class="card-header border-1 pt-5">
+                                                    <h3>Liste des étudiants inscrits à l'UE</h3>
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <h6 id="noteTitle"  class="text-muted">Moyenne : </h6>
 
+                                                            <div class="m-1 bg-light-success px-3 py-2 rounded">
+                                                                <span class="fw-bold">
+                                                                    <i class="bi bi-award-fill text-warning me-2"></i> Max :
+                                                                </span>
+                                                                <span id="meilleureNoteUE">0</span>
+                                                            </div>
+                                                            <div class="m-1 bg-light-danger px-3 py-2 rounded">
+                                                                <span class="fw-bold">
+                                                                    <i class="bi bi-arrow-down-square-fill text-danger me-2"></i> Min :
+                                                                </span>
+                                                                <span id="moinsBonneNoteUE">0</span>
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <h6 id="validationTitle" class="text-muted">Statut : </h6>
+                                                            <div class="m-1 bg-light-primary px-3 py-2 rounded">
+                                                                <span class="fw-bold">
+                                                                    <i class="bi bi-check-circle-fill text-success me-2"></i>Réussite :
+                                                                </span>
+                                                                <span id="valideUE">0</span>
+                                                            </div>
+                                                            <div class="m-1 bg-light-warning px-3 py-2 rounded">
+                                                                <span class="fw-bold">
+                                                                    <i class="bi bi-x-circle-fill text-danger me-2"></i>Echec :
+                                                                </span>
+                                                                <span id="nonValideUE">0</span>
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <h6 id="presenceTitle" class="text-muted">Présence : </h6>
+                                                            <div class="m-1 bg-light-info px-3 py-2 rounded">
+                                                                <span class="fw-bold">
+                                                                    <i class="bi bi-check2-square text-success me-2"></i>Présents :
+                                                                </span>
+                                                                <span id="presentUE">0</span>
+                                                            </div>
+                                                            <div class="m-1 bg-light-danger px-3 py-2 rounded">
+                                                                <span class="fw-bold">
+                                                                    <i class="bi bi-x-square text-danger me-2"></i>Absents :
+                                                                </span>
+                                                                <span id="absentUE">0</span>
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <h6 class="text-muted">Globale</h6>
+
+                                                            <div class="m-1 bg-light-info px-3 py-2 rounded">
+                                                                <span class="fw-bold">
+                                                                    <i class="bi bi-people-fill text-primary me-2"></i>
+                                                                    Effectif:
+                                                                </span>
+                                                                <span id="nombreEtudiants">0</span>
+                                                            </div>
+                                                            <div class="border-end-4 m-1 bg-light-primary px-3 py-2 rounded">
+                                                                <span class="fw-bold">
+                                                                    <i class="bi bi-calculator-fill text-primary me-2"></i> Moyenne UE :
+                                                                </span>
+                                                                <span id="moyenneUE">0</span>
+                                                            </div>
+                                                        </div>
                                                     </div>
 
                                                 </div>
@@ -330,28 +397,9 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div id="ueContainer" class="card bg-light-warning col col-4">
-                                                <div class="card-header border-1 pt-5">
-                                                    <h1>Liste des UE</h1>
-                                                </div>
-                                                <div class="card-body">
-                                                    <div class="table-responsive">
-                                                        <table class="table align-middle table-row-dashed fs-6 gy-5" id="ueTable">
-                                                            <thead>
-                                                                <tr class="text-start text-gray-400 fw-bolder fs-7 text-uppercase gs-0">
-                                                                    <th class="min-w-100px">Unités d'enseignements</th>
-                                                                    <!-- <th class="min-w-100px">Crédits</th> -->
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody class="fw-bold text-gray-600" id="ueTableBody">
-                                                                <!-- Les données des UE seront insérées ici dynamiquement -->
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
                                             
-                                            
+
+
                                         </div>
                                     </div>
                                     <!-- etudiantsUEModal -->

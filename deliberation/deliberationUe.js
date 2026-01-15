@@ -3,7 +3,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const niveauxFormationSelect = document.getElementById('filterNiveau');
     const optionsSelect = document.getElementById('filterOption');
     const semestersSelect = document.getElementById('filterSemester');
-    const ueTableBody = document.getElementById('ueTableBody');
+    const ueTableBody = document.getElementById('ueBoutonContainer');
+    // const id="ueBoutonContainer";
     const cycleSelect = document.getElementById('filterCycle');
 
     // Stocker les données originales pour éviter de recharger
@@ -163,7 +164,7 @@ document.addEventListener('DOMContentLoaded', function () {
         cycleSelect.addEventListener('change', function() {
             const selectedCycleId = this.value;
             loadNiveaux(selectedCycleId);
-            loadUEs();
+            // loadUEs();
         });
 
         // Écouteur pour la filière
@@ -175,18 +176,57 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Si aucune filière n'est sélectionnée, charger toutes les options
                 loadOptions();
             }
-            loadUEs();
+            // loadUEs();
         });
 
         // Écouteurs pour les autres filtres
-        [niveauxFormationSelect, optionsSelect, semestersSelect].forEach(select => {
+        [semestersSelect].forEach(select => {
             select.addEventListener('change', loadUEs);
         });
     }
 
+    // fourchette repêchage des UEs
+    const instervalleNote = [{ min: 7, max: 7.5 },{ min: 7.5, max: 8 }, { min: 8, max: 8.5 }, { min: 8.5, max: 9 }, { min: 9, max: 9.5 }, { min: 9.5, max: 10 }];
+    const intervalleNotesContainer = document.getElementById('intervalleNotesContainer');
+    instervalleNote.forEach(intervalle => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'btn btn-outline-secondary m-1 text-sm text-dark';
+        button.textContent = `${intervalle.min} - ${intervalle.max}`;
+        button.addEventListener('click', () => {
+            // Gérer le clic sur le bouton de l'intervalle de notes
+            const noteJury = intervalle.min != 0 ? 10 - intervalle.min : 3;
+            Swal.fire({
+                title: 'Confirmation',
+                text: ` Voulez-vous vraiment repêcher toutes étudiants ayant au moins ${intervalle.min} ?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Oui',
+                cancelButtonText: 'Non'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Logique pour appliquer la fourchette de notes
+                    Swal.fire('Succès', `La fourchette de notes ${intervalle.min} - ${intervalle.max} a été appliquée avec une note jury de ${noteJury}.`, 'success');
+                }
+            });
+            // Vous pouvez ajouter une logique pour filtrer les UEs en fonction de cet intervalle
+        });
+        intervalleNotesContainer.appendChild(button);
+    });
+
     // Fonction de chargement des UEs
     function loadUEs() {
         // Récupérer les valeurs actuelles des filtres
+        if(cycleSelect.value==='' && niveauxFormationSelect.value===''&& filieresSelect.value===''&& optionsSelect.value===''&& semestersSelect.value===''){
+            ueTableBody.innerHTML = `
+                <tr>
+                    <td colspan="3" style="text-align: center; padding: 20px; color: #666;">
+                        Sélectionnez des filtres pour afficher les UEs
+                    </td>
+                </tr>
+            `;
+            return;
+        }
         const filters = {
             idcycle: cycleSelect.value || null,
             idNiveauFormation: niveauxFormationSelect.value || null,
@@ -233,21 +273,31 @@ document.addEventListener('DOMContentLoaded', function () {
                 
                 if (ues && ues.length > 0) {
                     ues.forEach(ue => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td class="text-center">${ue.nomUE || ''}</td>
-                        `;
-                        ueTableBody.appendChild(row);
+                        // const row = document.createElement('tr');
+                        // row.innerHTML = `
+                        //     <td class="text-center">${ue.nomUE || ''}</td>
+                        // `;
+                        // ueTableBody.appendChild(row);
                         
-                        // Ajouter l'événement click si nécessaire
-                        if (ue.idUE) {
-                            row.addEventListener('click', () => {
-                                loadECs(ue.idUE);
-                            });
-                            row.style.cursor = 'pointer';
-                            row.title = 'Cliquez pour voir les ECs';
-                            row.classList.add('ue-row', 'hover','btn-outline-secondary');
-                        }
+                        // // Ajouter l'événement click si nécessaire
+                        // if (ue.idUE) {
+                        //     row.addEventListener('click', () => {
+                        //         loadECs(ue.idUE);
+                        //     });
+                        //     row.style.cursor = 'pointer';
+                        //     row.title = 'Cliquez pour voir les ECs';
+                        //     row.classList.add('ue-row', 'hover','btn-outline-secondary');
+                        // }
+                        const ueBoutonContainer = document.getElementById('ueBoutonContainer');
+                        ueBoutonContainer.className = 'd-flex flex-wrap justify-content-start';
+                        const ueButton = document.createElement('button');
+                        ueButton.type = 'button';
+                        ueButton.className = 'btn btn-sm btn-outline-primary m-1 ue-button border-secondary border-2';
+                        ueButton.innerHTML = ue.code+' : <span class="text-dark">'+ue.nomUE+'</span>';
+                        ueButton.addEventListener('click', () => {
+                            loadECs(ue.idUE);
+                        });
+                        ueBoutonContainer.appendChild(ueButton);
                     });
                 } else {
                     // Afficher un message si aucun résultat
@@ -274,24 +324,56 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Fonction de chargement des ECs
     function loadECs(ueId) {
-        // const ecTableBody = document.getElementById(`ecTableBody_${ueId}`);
-        // if (!ecTableBody) {
-        //     console.error(`Table body non trouvé pour UE ID: ${ueId}`);
-        //     return;
-        // }
+
+        getStatUE(ueId)
+            .then(stats => {
+                const maxNoteHeader = document.getElementById('meilleureNoteUE');
+                const minNoteHeader = document.getElementById('moinsBonneNoteUE');
+                const moyenneHeader = document.getElementById('moyenneUE');
+                const totalEtudiantsHeader = document.getElementById('nombreEtudiants');
+                const valideHeader = document.getElementById('valideUE');
+                const nonValideHeader = document.getElementById('nonValideUE');
+                const presentUEHeader = document.getElementById('presentUE');
+                const absentUEHeader = document.getElementById('absentUE');
+                if (stats && stats.length > 0) {
+                    const stat = stats[0];
+
+                    absentUEHeader.textContent = stat.nombreNonComposes || 0;
+                    presentUEHeader.textContent = stat.nombreComposes || 0;
+                    maxNoteHeader.textContent = stat.meilleureNote || 0;
+                    minNoteHeader.textContent = stat.moinsBonneNote || 0;
+                    moyenneHeader.textContent = stat.moyenneGenerale || 0;
+                    totalEtudiantsHeader.textContent = stat.totalEtudiants || 0;
+                    valideHeader.textContent = ((stat.nombreReussites / stat.totalEtudiants) * 100)+'%' || '0%';
+                    nonValideHeader.textContent = ((stat.nombreEchecs / stat.totalEtudiants) * 100) +'%' || '0%';
+                }else{
+                    maxNoteHeader.textContent = 0;
+                    minNoteHeader.textContent = 0;
+                    moyenneHeader.textContent = 0;
+                    totalEtudiantsHeader.textContent = 0;
+                    valideHeader.textContent = 0;
+                    nonValideHeader.textContent = 0;
+                    presentUEHeader.textContent = 0;
+                    absentUEHeader.textContent = 0;
+                }
+            });
 
         getEtudiantByUE(ueId)
             .then(etudiants => {
                 ecTableBody.innerHTML = '';
                 if (etudiants && etudiants.length > 0) {
+
                     etudiants.forEach(etudiant => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
                             <td>${etudiant.matricule || ''}</td>
+                            <td>${etudiant.prenom || ''} ${etudiant.nom || ''}</td>
+                            <td>${etudiant.nom || ''}</td>
                             <td>${etudiant.note || '0'}</td>
                         `;
                         ecTableBody.appendChild(row);
                     });
+                    
                 } else {
                     const row = document.createElement('tr');
                     row.innerHTML = `
@@ -314,6 +396,11 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
+    function getStatUE(ueId) {
+        // Implémentation de la récupération des statistiques pour une UE
+        return fetch(`deliberationUeController.php?action=getStatUE&ueId=${ueId}`)
+            .then(response => response.json());
+    }
     // Initialiser la page
     initializePage();
 });
