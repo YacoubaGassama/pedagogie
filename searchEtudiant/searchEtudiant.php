@@ -3,7 +3,7 @@ session_start();
 
 // Vérifier si l'utilisateur est connecté
 // if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-//     header('Location: http://192.168.195.145/pedagogie/page-connexion');
+//     header('Location: http://localhost/pedagogie/page-connexion');
 //     exit;
 // }
 
@@ -38,13 +38,13 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
     <meta property="og:url" content="https://ent.uahb.sn" />
     <meta property="og:site_name" content="UAHB - ENT" />
     <link rel="canonical" href="https://ent.uahb.sn" />
-    <link rel="shortcut icon" href="http://192.168.195.145/pedagogie/dist_assets/media/logos/1.png" />
+    <link rel="shortcut icon" href="http://localhost/pedagogie/dist_assets/media/logos/1.png" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" />
-    <link href="http://192.168.195.145/pedagogie/dist_assets/plugins/custom/fullcalendar/fullcalendar.bundle.css" rel="stylesheet" type="text/css" />
-    <link href="http://192.168.195.145/pedagogie/dist_assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" />
-    <link href="http://192.168.195.145/pedagogie/dist_assets/css/style.bundle.css" rel="stylesheet" type="text/css" />
-    <link href="http://192.168.195.145/pedagogie/dist_assets/plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" type="text/css" />
-    <!-- <link href="http://192.168.195.145/pedagogie/dist_assets/css/style.css" rel="stylesheet" type="text/css" /> -->
+    <link href="http://localhost/pedagogie/dist_assets/plugins/custom/fullcalendar/fullcalendar.bundle.css" rel="stylesheet" type="text/css" />
+    <link href="http://localhost/pedagogie/dist_assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" />
+    <link href="http://localhost/pedagogie/dist_assets/css/style.bundle.css" rel="stylesheet" type="text/css" />
+    <link href="http://localhost/pedagogie/dist_assets/plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" type="text/css" />
+    <!-- <link href="http://localhost/pedagogie/dist_assets/css/style.css" rel="stylesheet" type="text/css" /> -->
     <link rel="stylesheet" href="maquetteCss">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.0/dist/sweetalert2.min.css">
     <?php
@@ -69,7 +69,7 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
             <div id="kt_aside" class="aside aside-light aside-hoverable" data-kt-drawer="true" data-kt-drawer-name="aside" data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true" data-kt-drawer-width="{default:'200px', '300px': '250px'}" data-kt-drawer-direction="start" data-kt-drawer-toggle="#kt_aside_mobile_toggle">
                 <div class="aside-logo flex-column-auto " id="kt_aside_logo">
                     <a href="#">
-                        <img alt="Logo" src="http://192.168.195.145/pedagogie/dist_assets/media/logos/1.png" class="h-50px logo " style="margin-left: 70px!important; margin-top: 5px;" />
+                        <img alt="Logo" src="http://localhost/pedagogie/dist_assets/media/logos/1.png" class="h-50px logo " style="margin-left: 70px!important; margin-top: 5px;" />
                     </a>
                     <div id="kt_aside_toggle" class="btn btn-icon w-auto px-0 btn-active-color-primary aside-toggle" data-kt-toggle="true" data-kt-toggle-state="active" data-kt-toggle-target="body" data-kt-toggle-name="aside-minimize">
                         <span class="svg-icon svg-icon-1 rotate-180">
@@ -113,7 +113,7 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
                                                 </span>
                                             </span>
 
-                                            <a class="menu-title" href="http://192.168.195.145/pedagogie/personnel/gestionTache.php">Gestion des taches</a>
+                                            <a class="menu-title" href="http://localhost/pedagogie/personnel/gestionTache.php">Gestion des taches</a>
 
                                         </div>
                                     </div>
@@ -128,7 +128,7 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
                                         </span>
                                     </span>
 
-                                    <a class="menu-title" href="http://192.168.195.145/pedagogie/searchEtudiant/searchEtudiant.php">Recherche Etudiant</a>
+                                    <a class="menu-title" href="http://localhost/pedagogie/searchEtudiant/searchEtudiant.php">Recherche Etudiant</a>
                                 </div>
                                 <div class="menu-link" type="button" role="tab">
                                     <span class="menu-icon">
@@ -139,7 +139,7 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
                                         </span>
                                     </span>
 
-                                    <a class="menu-title" href="http://192.168.195.145/pedagogie/viewUEEtudiant.php">UE et Etudiants</a>
+                                    <a class="menu-title" href="http://localhost/pedagogie/viewUEEtudiant.php">UE et Etudiants</a>
                                 </div>
                             </div>
                         </div>
@@ -161,7 +161,7 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
                         </div>
                         <div class="d-flex align-items-center flex-grow-1 flex-lg-grow-0">
                             <a href="#" class="d-lg-none">
-                                <img alt="Logo" src="http://192.168.195.145/pedagogie/dist_assets/media/logos/1.png" class="h-30px" />
+                                <img alt="Logo" src="http://localhost/pedagogie/dist_assets/media/logos/1.png" class="h-30px" />
                             </a>
                         </div>
                         <div class="d-flex align-items-stretch justify-content-between flex-lg-grow-1">
@@ -216,7 +216,7 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
                                                         <input class="form-check-input w-30px h-20px"
                                                             checked="checked" type="checkbox" value="1" name="mode"
                                                             id="kt_user_menu_dark_mode_toggle"
-                                                            data-kt-url="http://192.168.195.145/pedagogie/deconnexion.php" />
+                                                            data-kt-url="http://localhost/pedagogie/deconnexion.php" />
                                                         <span class="pulse-ring ms-n1"></span>
                                                         <span class="form-check-label text-gray-600 fs-7">se
                                                             déconnecter</span>
@@ -293,21 +293,21 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <!-- Global plugins and theme bundles -->
-    <script src="http://192.168.195.145/pedagogie/dist_assets/plugins/global/plugins.bundle.js"></script>
-    <script src="http://192.168.195.145/pedagogie/dist_assets/js/scripts.bundle.js"></script>
-    <script src="http://192.168.195.145/pedagogie/dist_assets/js/script.js"></script>
+    <script src="http://localhost/pedagogie/dist_assets/plugins/global/plugins.bundle.js"></script>
+    <script src="http://localhost/pedagogie/dist_assets/js/scripts.bundle.js"></script>
+    <script src="http://localhost/pedagogie/dist_assets/js/script.js"></script>
 
     <!-- DataTables and other feature bundles -->
-    <script src="http://192.168.195.145/pedagogie/dist_assets/plugins/custom/datatables/datatables.bundle.js"></script>
-    <script src="http://192.168.195.145/pedagogie/dist_assets/plugins/custom/fullcalendar/fullcalendar.bundle.js"></script>
+    <script src="http://localhost/pedagogie/dist_assets/plugins/custom/datatables/datatables.bundle.js"></script>
+    <script src="http://localhost/pedagogie/dist_assets/plugins/custom/fullcalendar/fullcalendar.bundle.js"></script>
 
     <!-- Optional / custom scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.0/dist/sweetalert2.min.js"></script>
-    <script src="http://192.168.195.145/pedagogie/dist_assets/js/custom/widgets.js"></script>
-    <script src="http://192.168.195.145/pedagogie/dist_assets/js/custom/apps/chat/chat.js"></script>
-    <script src="http://192.168.195.145/pedagogie/dist_assets/js/custom/modals/create-app.js"></script>
-    <script src="http://192.168.195.145/pedagogie/dist_assets/js/custom/modals/upgrade-plan.js"></script>
-    <script src="http://192.168.195.145/pedagogie/dist_assets/js/jquery.validate.min.js"></script>
+    <script src="http://localhost/pedagogie/dist_assets/js/custom/widgets.js"></script>
+    <script src="http://localhost/pedagogie/dist_assets/js/custom/apps/chat/chat.js"></script>
+    <script src="http://localhost/pedagogie/dist_assets/js/custom/modals/create-app.js"></script>
+    <script src="http://localhost/pedagogie/dist_assets/js/custom/modals/upgrade-plan.js"></script>
+    <script src="http://localhost/pedagogie/dist_assets/js/jquery.validate.min.js"></script>
 
     <!-- Page script (after all libs) -->
     <script src="searchEtudiant.js"></script>

@@ -38,7 +38,7 @@ function initDataTableUEEtudiant() {
                                 <div id="collapse${data}" class="accordion-collapse collapse" aria-labelledby="heading${data}" data-bs-parent="#accordionUE${data}">
                                         <ul class="list-group">
                                             <li class="list-group-item" onclick="loadEtudiantsUE(${data}, '${row.nomUE}', ${row.idOption}, ${row.idMaquette}, ${row.idNiveauFormation})" style="cursor:pointer;" ><a class="link link-primary fw-bold">Voir étudiants</a></li>
-                                            <li class="list-group-item" style="cursor:pointer;"><a href="http://192.168.195.145/centreCalcul/dist/views/listeEcViewNote.php?idUe=${row.idUE}&idOpt=${row.idOption}&id=${row.idMaquette}" class="link link-primary fw-bold">Voir notes</a></li>
+                                            <li class="list-group-item" style="cursor:pointer;"><a href="http://localhost/centreCalcul/dist/views/listeEcViewNote.php?idUe=${row.idUE}&idOpt=${row.idOption}&id=${row.idMaquette}" class="link link-primary fw-bold">Voir notes</a></li>
                                         </ul>
                                 </div>
 
@@ -181,7 +181,7 @@ function loadEtudiantsUE(idUE, nomUE, idOption, idMaquette, idNiveauFormation) {
                             { data: 'nationalite', title: '<strong>Nationalité</strong>' },
                             // { data: 'sexe', title: '<strong>Sexe</strong>' },
                             { data: 'id', title: '<strong>Actions</strong>', render: function(data, type, row) {
-                                return `<a href="http://192.168.195.145/centreCalcul/dist/views/profil1.php?matricule=${row.matricule}&idOpt=${idOption}&idN=${idNiveauFormation}&idMaq=${idMaquette}" class="link link-primary fw-bold">Voir le profil</a>`;
+                                return `<a href="http://localhost/centreCalcul/dist/views/profil1.php?matricule=${row.matricule}&idOpt=${idOption}&idN=${idNiveauFormation}&idMaq=${idMaquette}" class="link link-primary fw-bold">Voir le profil</a>`;
                             }, orderable: false, searchable: false }
                         ],
                         paging: true,

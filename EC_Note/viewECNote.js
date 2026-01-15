@@ -184,7 +184,7 @@ function loadEtudiantsUE(idUE, nomUE, idOption, idMaquette, idNiveauFormation) {
                             { data: 'nationalite', title: '<strong>Nationalité</strong>' },
                             // { data: 'sexe', title: '<strong>Sexe</strong>' },
                             { data: 'id', title: '<strong>Actions</strong>', render: function(data, type, row) {
-                                return `<a href="http://192.168.195.145/centreCalcul/dist/views/profil1.php?matricule=${row.matricule}&idOpt=${idOption}&idN=${idNiveauFormation}&idMaq=${idMaquette}" class="link link-primary fw-bold">Voir le profil</a>`;
+                                return `<a href="http://localhost/centreCalcul/dist/views/profil1.php?matricule=${row.matricule}&idOpt=${idOption}&idN=${idNiveauFormation}&idMaq=${idMaquette}" class="link link-primary fw-bold">Voir le profil</a>`;
                             }, orderable: false, searchable: false }
                         ],
                         paging: true,
