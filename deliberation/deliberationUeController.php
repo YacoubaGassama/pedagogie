@@ -282,7 +282,8 @@ WHERE m.idEtat = 3";
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 function getEtudiantByUE($pdo, $idUE) {
-    $sql = "SELECT DISTINCT se.matricule, se.prenom, se.nom as nomEtudiant, pn.note, ec.nom as nomEc FROM scolarite_inscription_pedagogique_ue sipu
+    $sql = "SELECT DISTINCT se.matricule, se.prenom, se.nom as nomEtudiant, ec.coefficient as coef,
+     pn.note, ec.nom as nomEc FROM scolarite_inscription_pedagogique_ue sipu
     JOIN scolarite_inscription_pedagogique sip ON sipu.idInscriptionPedagogique = sip.id
     JOIN scolarite_etudiants se ON sipu.matricule = se.matricule
     JOIN scolarite_inscription si on sip.idInscription = si.id
@@ -298,14 +299,8 @@ function getEtudiantByUE($pdo, $idUE) {
 
 function getStatUE($pdo, $ueId) {
     $sql = "SELECT
-    COUNT(DISTINCT sipu.matricule) AS totalEtudiants,
-    AVG(pn.note) AS moyenneGenerale,
-    COUNT(DISTINCT CASE WHEN pn.note >= 10 THEN sipu.matricule END) AS nombreReussites,
-    COUNT(DISTINCT CASE WHEN pn.note < 10 THEN sipu.matricule END) AS nombreEchecs,
     COUNT(DISTINCT CASE WHEN pn.non_compose = 1 THEN sipu.matricule END) AS nombreNonComposes,
-    COUNT(DISTINCT CASE WHEN pn.non_compose = 0 THEN sipu.matricule END) AS nombreComposes,
-    MAX(pn.note) AS meilleureNote,
-    MIN(pn.note) AS moinsBonneNote
+    COUNT(DISTINCT CASE WHEN pn.non_compose = 0 THEN sipu.matricule END) AS nombreComposes
 FROM scolarite_inscription_pedagogique_ue sipu
     JOIN scolarite_inscription_pedagogique sip ON sipu.idInscriptionPedagogique = sip.id
     JOIN scolarite_etudiants se ON sipu.matricule = se.matricule

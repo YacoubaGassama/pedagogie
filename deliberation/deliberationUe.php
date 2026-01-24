@@ -45,21 +45,13 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
     <link href="http://localhost/pedagogie/dist_assets/css/style.bundle.css" rel="stylesheet" type="text/css" />
     <link href="http://localhost/pedagogie/dist_assets/plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" type="text/css" />
     <!-- <link href="http://localhost/pedagogie/dist_assets/css/style.css" rel="stylesheet" type="text/css" /> -->
-    <link rel="stylesheet" href="maquetteCss">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.0/dist/sweetalert2.min.css">
     <?php
     $tacheId = $_POST['tacheId'] ?? null;
     $url = $_POST['url'] ?? null;
     $autreRessource = $_POST['autreRessource'] ?? null;
     ?>
-    <script>
-        const postData = {
-            tacheId: <?php echo json_encode($tacheId); ?>,
-            url: <?php echo json_encode($url); ?>,
-            autreRessource: <?php echo json_encode($autreRessource); ?>
-        };
-        console.log(postData)
-    </script>
+    
 
 </head>
 
@@ -292,13 +284,11 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
                                             <div id="ueContainer" class="card bg-light-primary col col-12">
                                                 <div class="card-header border-1">
                                                     <h1 class="card-title">Liste des UE</h1>
-                                                    <div class="card-toolbar" id="intervalleNotesContainer">
-                                                        
-                                                    </div>
+
                                                 </div>
                                                 <div class="card-body">
                                                     <div class="table-responsive" id="ueBoutonContainer">
-                                                        
+
                                                         <!-- <table class="table align-middle table-row-dashed fs-6 gy-5" id="ueTable">
                                                             <thead>
                                                                 <tr class="text-start text-gray-400 fw-bolder fs-7 text-uppercase gs-0">
@@ -310,13 +300,17 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
                                                         </table> -->
                                                     </div>
                                                 </div>
+                                                <div class="card-footer border-1">
+                                                    <div class="d-flex flex-wrap justify-content-between" id="intervalleNotesContainer">
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div id="ecContainer" class="card bg-white col-12">
                                                 <div class="card-header border-1 pt-5">
                                                     <h3>Liste des étudiants inscrits à l'UE</h3>
                                                     <div class="d-flex justify-content-between align-items-center">
                                                         <div>
-                                                            <h6 id="noteTitle"  class="text-muted">Moyenne : </h6>
+                                                            <h6 id="noteTitle" class="text-muted">Moyenne : </h6>
 
                                                             <div class="m-1 bg-light-success px-3 py-2 rounded">
                                                                 <span class="fw-bold">
@@ -332,25 +326,40 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
                                                             </div>
                                                         </div>
                                                         <div>
-                                                            <h6 id="validationTitle" class="text-muted">Statut : </h6>
+                                                            <h6 id="validationTitle" class="text-muted">Réussite : </h6>
                                                             <div class="m-1 bg-light-primary px-3 py-2 rounded">
                                                                 <span class="fw-bold">
-                                                                    <i class="bi bi-check-circle-fill text-success me-2"></i>Réussite :
+                                                                    <i class="bi bi-check-circle-fill text-success me-2"></i>Taux :
                                                                 </span>
-                                                                <span id="valideUE">0</span>
+                                                                <span id="valideUE">0%</span>
                                                             </div>
                                                             <div class="m-1 bg-light-warning px-3 py-2 rounded">
                                                                 <span class="fw-bold">
-                                                                    <i class="bi bi-x-circle-fill text-danger me-2"></i>Echec :
+                                                                    <i class="bi bi-check-circle-fill text-success me-2"></i>Effectif :
                                                                 </span>
-                                                                <span id="nonValideUE">0</span>
+                                                                <span id="effectifReussite">0</span>
                                                             </div>
                                                         </div>
                                                         <div>
-                                                            <h6 id="presenceTitle" class="text-muted">Présence : </h6>
+                                                            <h6 id="validationTitle" class="text-muted">Echec : </h6>
+                                                            <div class="m-1 bg-light-primary px-3 py-2 rounded">
+                                                                <span class="fw-bold">
+                                                                    <i class="bi bi-x-circle-fill text-danger me-2"></i>Taux :
+                                                                </span>
+                                                                <span id="nonValideUE">0%</span>
+                                                            </div>
+                                                            <div class="m-1 bg-light-warning px-3 py-2 rounded">
+                                                                <span class="fw-bold">
+                                                                    <i class="bi bi-x-circle-fill text-danger me-2"></i>Effectif :
+                                                                </span>
+                                                                <span id="effectifEchec">0</span>
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <h6 id="presenceTitle" class="text-muted">Nbre Etudiant : </h6>
                                                             <div class="m-1 bg-light-info px-3 py-2 rounded">
                                                                 <span class="fw-bold">
-                                                                    <i class="bi bi-check2-square text-success me-2"></i>Présents :
+                                                                    <i class="bi bi-check2-square text-success me-2"></i>Ayant Composés :
                                                                 </span>
                                                                 <span id="presentUE">0</span>
                                                             </div>
@@ -397,7 +406,7 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
 
 
                                         </div>
