@@ -35,50 +35,50 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
     $url = $_POST['url'] ?? null;
     $autreRessource = $_POST['autreRessource'] ?? null;
     ?>
-<style>
-/* Styles pour la nouvelle structure */
-.stat-block {
-    min-height: 120px;
-}
+    <style>
+        /* Styles pour la nouvelle structure */
+        .stat-block {
+            min-height: 120px;
+        }
 
-.stat-item {
-    padding: 0.5rem 0.75rem;
-    border-radius: 0.375rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.25rem;
-}
+        .stat-item {
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
 
-.stat-label {
-    font-weight: 600;
-    font-size: 0.85rem;
-    margin-right: auto;
-}
+        .stat-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-right: auto;
+        }
 
-.stat-value {
-    font-weight: 700;
-    font-size: 1rem;
-}
+        .stat-value {
+            font-weight: 700;
+            font-size: 1rem;
+        }
 
-.simulation-panel {
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-}
+        .simulation-panel {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .stat-block {
-        min-height: auto;
-    }
-    
-    .stat-item {
-        flex-direction: row;
-        text-align: left;
-        gap: 0.5rem;
-    }
-}
-</style>
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .stat-block {
+                min-height: auto;
+            }
+
+            .stat-item {
+                flex-direction: row;
+                text-align: left;
+                gap: 0.5rem;
+            }
+        }
+    </style>
 
 </head>
 
@@ -316,210 +316,210 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
                                     </div>
                                     <div class="card-body pt-4 bg-light px-5">
                                         <div class="row g-4"> <!-- Utiliser g-4 pour l'espacement entre colonnes -->
-    
-    <!-- COLONNE UE -->
-    <div class="col-lg-3">
-        <div class="card h-100"> <!-- h-100 pour hauteur égale -->
-            <div class="card-header border-bottom">
-                <h2 class="card-title h5 mb-0">Liste des UE</h2>
-                <div>
-                    <span id="ndRepeche" class="mt-0 mr-0 badge fs-bold bg-primary"></span>
-                </div>
-            </div>
-            <div class="card-body" id="ueBoutonContainer">
-                <!-- Contenu dynamique -->
-            </div>
-            <div class="card-footer border-top bg-light">
-                <!-- Footer content -->
-                 <div id="intervalleNotesContainer" class="d-flex flex-wrap m-0"></div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- COLONNE STATISTIQUES ET EC -->
-    <div class="col-lg-9">
-        <div class="card h-100">
-            
-            <!-- EN-TÊTE STATISTIQUES -->
-            <!-- Remplacer la section EN-TÊTE STATISTIQUES dans deliberationUe.php -->
 
-<div class="card-header border-bottom pt-4">
-    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 w-100">
-        
-        <!-- BLOC NOTES -->
-        <div class="col">
-            <div class="stat-block">
-                <h3 class="stat-title h6 text-muted mb-2">Notes</h3>
-                <div class="stat-item bg-light-success">
-                    <i class="fas fa-award text-warning" aria-hidden="true"></i>
-                    <span class="stat-label">Max :</span>
-                    <span class="stat-value" id="meilleureNoteUE">0</span>
-                </div>
-                <div class="stat-item bg-light-danger mt-2">
-                    <i class="fas fa-arrow-down text-danger" aria-hidden="true"></i>
-                    <span class="stat-label">Min :</span>
-                    <span class="stat-value" id="moinsBonneNoteUE">0</span>
-                </div>
-            </div>
-        </div>
-        
-        <!-- BLOC RÉUSSITE -->
-        <div class="col">
-            <div class="stat-block">
-                <h3 class="stat-title h6 text-muted mb-2">Réussite</h3>
-                <div class="stat-item bg-light-primary">
-                    <i class="fas fa-check-circle text-success" aria-hidden="true"></i>
-                    <span class="stat-label">Taux :</span>
-                    <span class="stat-value" id="valideUE">0%</span>
-                </div>
-                <div class="stat-item bg-light-warning mt-2">
-                    <i class="fas fa-check-circle text-success" aria-hidden="true"></i>
-                    <span class="stat-label">Effectif :</span>
-                    <span class="stat-value" id="effectifReussite">0</span>
-                </div>
-            </div>
-        </div>
-        
-        <!-- BLOC ÉCHEC -->
-        <div class="col">
-            <div class="stat-block">
-                <h3 class="stat-title h6 text-muted mb-2">Échec</h3>
-                <div class="stat-item bg-light-primary">
-                    <i class="fas fa-times-circle text-danger" aria-hidden="true"></i>
-                    <span class="stat-label">Taux :</span>
-                    <span class="stat-value" id="nonValideUE">0%</span>
-                </div>
-                <div class="stat-item bg-light-warning mt-2">
-                    <i class="fas fa-times-circle text-danger" aria-hidden="true"></i>
-                    <span class="stat-label">Effectif :</span>
-                    <span class="stat-value" id="effectifEchec">0</span>
-                </div>
-            </div>
-        </div>
-        
-        <!-- BLOC PRÉSENCE -->
-        <div class="col">
-            <div class="stat-block ">
-                <h3 class="stat-title h6 text-muted mb-2">Présence</h3>
-                <div class="stat-item bg-light-info">
-                    <i class="fas fa-user-check text-success" aria-hidden="true"></i>
-                    <span class="stat-label">Présents :</span>
-                    <span class="stat-value" id="presentUE">0</span>
-                </div>
-                <div class="stat-item bg-light-danger mt-2">
-                    <i class="fas fa-user-times text-danger" aria-hidden="true"></i>
-                    <span class="stat-label">Absents :</span>
-                    <span class="stat-value" id="absentUE">0</span>
-                </div>
-            </div>
-        </div>
-        
-        <!-- BLOC GLOBAL -->
-        <div class="col">
-            <div class="stat-block">
-                <h3 class="stat-title h6 text-muted mb-2">Global</h3>
-                <div class="stat-item bg-light-info">
-                    <i class="fas fa-users text-primary" aria-hidden="true"></i>
-                    <span class="stat-label">Effectif :</span>
-                    <span class="stat-value" id="nombreEtudiants">0</span>
-                </div>
-                <div class="stat-item bg-light-primary mt-2">
-                    <i class="fas fa-calculator text-primary" aria-hidden="true"></i>
-                    <span class="stat-label">Moyenne :</span>
-                    <span class="stat-value" id="moyenneUE">0</span>
-                </div>
-            </div>
-        </div>
-        
-    </div>
-</div>
-            
-            <!-- CORPS AVEC CONTRÔLES ET TABLEAU -->
-            <div class="card-body">
-                
-                <!-- PANEL CONTRÔLES SIMULATION -->
-                <div class="simulation-panel card mb-4">
-                    <div class="card-body">
-                        <div class="row g-3 align-items-end">
-                            
-                            <!-- Sélecteur Stratégie -->
-                            <div class="col-md-4">
-                                <label for="strategySelect" class="form-label fw-bold">
-                                    Stratégie de calcul
-                                </label>
-                                <select id="strategySelect" class="form-select">
-                                    <option value="neutral">Neutre (pondérée par coef)</option>
-                                    <option value="favor_low">Avantager notes faibles</option>
-                                    <option value="favor_high">Avantager notes fortes</option>
-                                </select>
-                            </div>
-                            
-                            <!-- Sélecteur Arrondi -->
-                            <div class="col-md-3">
-                                <label for="roundingSelect" class="form-label fw-bold">
-                                    Précision d'affichage
-                                </label>
-                                <select id="roundingSelect" class="form-select">
-                                    <option value="0.01">0.01 (précis)</option>
-                                    <option value="0.25">0.25</option>
-                                    <option value="0.5">0.5</option>
-                                    <option value="1">1.0 (entier)</option>
-                                </select>
-                            </div>
-                            
-                            <!-- Checkbox -->
-                            <div class="col-md-3">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="lockGe10">
-                                    <label class="form-check-label fw-bold" for="lockGe10">
-                                        Bloquer notes ≥ 10
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <!-- Bouton Action -->
-                            <div class="col-md-2">
-                                <button type="button" class="btn btn-primary w-100" id="btnRunSimu">
-                                    <i class="fas fa-play me-2"></i>
-                                </button>
-                            </div>
-                            
-                            <!-- Message d'information -->
-                            <div class="col-12">
-                                <div class="alert alert-info py-2 mb-0" role="alert">
-                                    <small>
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        La simulation modifie temporairement les notes pour l'analyse.
-                                    </small>
-                                </div>
-                            </div>
-                            
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- TABLEAU DES ÉTUDIANTS -->
-                <div class="table-responsive" id="ecTableContainer">
-                    <table class="table table-hover align-middle" id="ecTable" aria-label="Tableau des éléments constitutifs">
-                        <thead class="table-light">
-                            <tr>
-                                <th scope="col" width="120">Matricule</th>
-                                <th scope="col">Nom complet</th>
-                                <th scope="col" width="100">Note</th>
-                                <th scope="col" width="120">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ecTableBody">
-                            <!-- Données dynamiques -->
-                        </tbody>
-                    </table>
-                </div>
-                <div id="resultats"></div>
-                
-            </div>
-        </div>
-    </div>
-</div>
+                                            <!-- COLONNE UE -->
+                                            <div class="col-lg-3 d-none">
+                                                <div class="card h-100"> <!-- h-100 pour hauteur égale -->
+                                                    <div class="card-header border-bottom">
+                                                        <h2 class="card-title h5 mb-0">Liste des UE</h2>
+                                                        <div>
+                                                            <span id="ndRepeche" class="mt-0 mr-0 badge fs-bold bg-primary"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-body" id="ueBoutonContainer">
+                                                        <!-- Contenu dynamique -->
+                                                    </div>
+                                                    <div class="card-footer border-top bg-light">
+                                                        <!-- Footer content -->
+                                                        <div id="intervalleNotesContainer" class="d-flex flex-wrap m-0"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- COLONNE STATISTIQUES ET EC -->
+                                            <div class="col-lg-12">
+                                                <div class="card h-100">
+
+                                                    <!-- EN-TÊTE STATISTIQUES -->
+                                                    <!-- Remplacer la section EN-TÊTE STATISTIQUES dans deliberationUe.php -->
+
+                                                    <div class="card-header border-bottom pt-4">
+                                                        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 w-100">
+
+                                                            <!-- BLOC NOTES -->
+                                                            <div class="col">
+                                                                <div class="stat-block">
+                                                                    <h3 class="stat-title h6 text-muted mb-2">Notes</h3>
+                                                                    <div class="stat-item bg-light-success">
+                                                                        <i class="fas fa-award text-warning" aria-hidden="true"></i>
+                                                                        <span class="stat-label">Max :</span>
+                                                                        <span class="stat-value" id="meilleureNoteUE">0</span>
+                                                                    </div>
+                                                                    <div class="stat-item bg-light-danger mt-2">
+                                                                        <i class="fas fa-arrow-down text-danger" aria-hidden="true"></i>
+                                                                        <span class="stat-label">Min :</span>
+                                                                        <span class="stat-value" id="moinsBonneNoteUE">0</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- BLOC RÉUSSITE -->
+                                                            <div class="col">
+                                                                <div class="stat-block">
+                                                                    <h3 class="stat-title h6 text-muted mb-2">Réussite</h3>
+                                                                    <div class="stat-item bg-light-primary">
+                                                                        <i class="fas fa-check-circle text-success" aria-hidden="true"></i>
+                                                                        <span class="stat-label">Taux :</span>
+                                                                        <span class="stat-value" id="valideUE">0%</span>
+                                                                    </div>
+                                                                    <div class="stat-item bg-light-warning mt-2">
+                                                                        <i class="fas fa-check-circle text-success" aria-hidden="true"></i>
+                                                                        <span class="stat-label">Effectif :</span>
+                                                                        <span class="stat-value" id="effectifReussite">0</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- BLOC ÉCHEC -->
+                                                            <div class="col">
+                                                                <div class="stat-block">
+                                                                    <h3 class="stat-title h6 text-muted mb-2">Échec</h3>
+                                                                    <div class="stat-item bg-light-primary">
+                                                                        <i class="fas fa-times-circle text-danger" aria-hidden="true"></i>
+                                                                        <span class="stat-label">Taux :</span>
+                                                                        <span class="stat-value" id="nonValideUE">0%</span>
+                                                                    </div>
+                                                                    <div class="stat-item bg-light-warning mt-2">
+                                                                        <i class="fas fa-times-circle text-danger" aria-hidden="true"></i>
+                                                                        <span class="stat-label">Effectif :</span>
+                                                                        <span class="stat-value" id="effectifEchec">0</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- BLOC PRÉSENCE -->
+                                                            <div class="col">
+                                                                <div class="stat-block ">
+                                                                    <h3 class="stat-title h6 text-muted mb-2">Présence</h3>
+                                                                    <div class="stat-item bg-light-info">
+                                                                        <i class="fas fa-user-check text-success" aria-hidden="true"></i>
+                                                                        <span class="stat-label">Présents :</span>
+                                                                        <span class="stat-value" id="presentUE">0</span>
+                                                                    </div>
+                                                                    <div class="stat-item bg-light-danger mt-2">
+                                                                        <i class="fas fa-user-times text-danger" aria-hidden="true"></i>
+                                                                        <span class="stat-label">Absents :</span>
+                                                                        <span class="stat-value" id="absentUE">0</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- BLOC GLOBAL -->
+                                                            <div class="col">
+                                                                <div class="stat-block">
+                                                                    <h3 class="stat-title h6 text-muted mb-2">Global</h3>
+                                                                    <div class="stat-item bg-light-info">
+                                                                        <i class="fas fa-users text-primary" aria-hidden="true"></i>
+                                                                        <span class="stat-label">Effectif :</span>
+                                                                        <span class="stat-value" id="nombreEtudiants">0</span>
+                                                                    </div>
+                                                                    <div class="stat-item bg-light-primary mt-2">
+                                                                        <i class="fas fa-calculator text-primary" aria-hidden="true"></i>
+                                                                        <span class="stat-label">Moyenne :</span>
+                                                                        <span class="stat-value" id="moyenneUE">0</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- CORPS AVEC CONTRÔLES ET TABLEAU -->
+                                                    <div class="card-body">
+
+                                                        <!-- PANEL CONTRÔLES SIMULATION -->
+                                                        <div class="simulation-panel card mb-4">
+                                                            <div class="card-body">
+                                                                <div class="row g-3 align-items-end">
+
+                                                                    <!-- Sélecteur Stratégie -->
+                                                                    <div class="col-md-4">
+                                                                        <label for="strategySelect" class="form-label fw-bold">
+                                                                            Stratégie de calcul
+                                                                        </label>
+                                                                        <select id="strategySelect" class="form-select">
+                                                                            <option value="neutral">Neutre (pondérée par coef)</option>
+                                                                            <option value="favor_low">Avantager notes faibles</option>
+                                                                            <option value="favor_high">Avantager notes fortes</option>
+                                                                        </select>
+                                                                    </div>
+
+                                                                    <!-- Sélecteur Arrondi -->
+                                                                    <div class="col-md-3">
+                                                                        <label for="roundingSelect" class="form-label fw-bold">
+                                                                            Précision d'affichage
+                                                                        </label>
+                                                                        <select id="roundingSelect" class="form-select">
+                                                                            <option value="0.01">0.01 (précis)</option>
+                                                                            <option value="0.25">0.25</option>
+                                                                            <option value="0.5">0.5</option>
+                                                                            <option value="1">1.0 (entier)</option>
+                                                                        </select>
+                                                                    </div>
+
+                                                                    <!-- Checkbox -->
+                                                                    <div class="col-md-3">
+                                                                        <div class="form-check form-switch">
+                                                                            <input class="form-check-input" type="checkbox" id="lockGe10">
+                                                                            <label class="form-check-label fw-bold" for="lockGe10">
+                                                                                Bloquer notes ≥ 10
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Bouton Action -->
+                                                                    <div class="col-md-2">
+                                                                        <button type="button" class="btn btn-primary w-100" id="btnRunSimu">
+                                                                            <i class="fas fa-play me-2"></i>
+                                                                        </button>
+                                                                    </div>
+
+                                                                    <!-- Message d'information -->
+                                                                    <div class="col-12">
+                                                                        <div class="alert alert-info py-2 mb-0" role="alert">
+                                                                            <small>
+                                                                                <i class="fas fa-info-circle me-1"></i>
+                                                                                La simulation modifie temporairement les notes pour l'analyse.
+                                                                            </small>
+                                                                        </div>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- TABLEAU DES ÉTUDIANTS -->
+                                                        <div class="table-responsive" id="ecTableContainer">
+                                                            <table class="table table-hover align-middle" id="ecTable" aria-label="Tableau des éléments constitutifs">
+                                                                <thead class="table-light">
+                                                                    <tr>
+                                                                        <th scope="col" width="120">Matricule</th>
+                                                                        <th scope="col">Nom complet</th>
+                                                                        <th scope="col" width="100">Note</th>
+                                                                        <th scope="col" width="120">Actions</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody id="ecTableBody">
+                                                                    <!-- Données dynamiques -->
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <div id="resultats"></div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <!-- etudiantsUEModal -->
                                         <div class="modal fade" id="etudiantsUEModal" tabindex="-1" aria-labelledby="etudiantsUEModalLabel" aria-hidden="true">
                                             <div class="modal-dialog modal-xl modal-dialog-centered">
