@@ -35,50 +35,50 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
     $url = $_POST['url'] ?? null;
     $autreRessource = $_POST['autreRessource'] ?? null;
     ?>
-<style>
-/* Styles pour la nouvelle structure */
-.stat-block {
-    min-height: 120px;
-}
+    <style>
+        /* Styles pour la nouvelle structure */
+        .stat-block {
+            min-height: 120px;
+        }
 
-.stat-item {
-    padding: 0.5rem 0.75rem;
-    border-radius: 0.375rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.25rem;
-}
+        .stat-item {
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
 
-.stat-label {
-    font-weight: 600;
-    font-size: 0.85rem;
-    margin-right: auto;
-}
+        .stat-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-right: auto;
+        }
 
-.stat-value {
-    font-weight: 700;
-    font-size: 1rem;
-}
+        .stat-value {
+            font-weight: 700;
+            font-size: 1rem;
+        }
 
-.simulation-panel {
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-}
+        .simulation-panel {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .stat-block {
-        min-height: auto;
-    }
-    
-    .stat-item {
-        flex-direction: row;
-        text-align: left;
-        gap: 0.5rem;
-    }
-}
-</style>
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .stat-block {
+                min-height: auto;
+            }
+
+            .stat-item {
+                flex-direction: row;
+                text-align: left;
+                gap: 0.5rem;
+            }
+        }
+    </style>
 
 </head>
 
@@ -149,7 +149,7 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
 
                                     <a class="menu-title" href="http://localhost/pedagogie/searchEtudiant/searchEtudiant.php">Recherche Etudiant</a>
                                 </div>
-                                <div class="menu-link active" type="button" role="tab">
+                                <div class="menu-link" type="button" role="tab">
                                     <span class="menu-icon">
                                         <span class="svg-icon svg-icon-2">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -160,7 +160,42 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
 
                                     <a class="menu-title" href="http://localhost/pedagogie/ueEtudiant/viewUEEtudiant.php">UE et Etudiants</a>
                                 </div>
+                                <div class="menu-link active" type="button" role="tab">
+                                    <span class="menu-icon">
+                                        <span class="svg-icon svg-icon-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+                                                <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                                    <polygon points="0 0 24 0 24 24 0 24" />
+                                                    <path d="M5.85714286,2 L13.7364114,2 C14.0910962,2 14.4343066,2.12568431 14.7051108,2.35473959 L19.4686994,6.3839416 C19.8056532,6.66894833 20,7.08787823 20,7.52920201 L20,20.0833333 C20,21.8738751 19.9795521,22 18.1428571,22 L5.85714286,22 C4.02044787,22 4,21.8738751 4,20.0833333 L4,3.91666667 C4,2.12612489 4.02044787,2 5.85714286,2 Z" fill="#000000" fill-rule="nonzero" opacity="0.3" />
+                                                    <rect fill="#000000" opacity="0.3" transform="translate(8.984240, 12.127098) rotate(-45.000000) translate(-8.984240, -12.127098) " x="7.41281179" y="10.5556689" width="3.14285714" height="3.14285714" rx="0.75" />
+                                                    <rect fill="#000000" opacity="0.3" transform="translate(15.269955, 12.127098) rotate(-45.000000) translate(-15.269955, -12.127098) " x="13.6985261" y="10.5556689" width="3.14285714" height="3.14285714" rx="0.75" />
+                                                    <rect fill="#000000" transform="translate(12.127098, 15.269955) rotate(-45.000000) translate(-12.127098, -15.269955) " x="10.5556689" y="13.6985261" width="3.14285714" height="3.14285714" rx="0.75" />
+                                                    <rect fill="#000000" transform="translate(12.127098, 8.984240) rotate(-45.000000) translate(-12.127098, -8.984240) " x="10.5556689" y="7.41281179" width="3.14285714" height="3.14285714" rx="0.75" />
+                                                </g>
+                                            </svg>
+                                        </span>
+                                    </span>
 
+                                    <a class="menu-title" href="http://localhost/pedagogie/deliberation/deliberationUe.php">Délibération par UE</a>
+                                </div>
+                                <div class="menu-link" type="button" role="tab">
+                                    <span class="menu-icon">
+                                        <span class="svg-icon svg-icon-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+                                                <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                                    <rect x="0" y="0" width="24" height="24" />
+                                                    <path d="M3.5,21 L20.5,21 C21.3284271,21 22,20.3284271 22,19.5 L22,8.5 C22,7.67157288 21.3284271,7 20.5,7 L10,7 L7.43933983,4.43933983 C7.15803526,4.15803526 6.77650439,4 6.37867966,4 L3.5,4 C2.67157288,4 2,4.67157288 2,5.5 L2,19.5 C2,20.3284271 2.67157288,21 3.5,21 Z" fill="#000000" opacity="0.3" />
+                                                    <rect fill="#000000" opacity="0.3" transform="translate(8.984240, 14.127098) rotate(-45.000000) translate(-8.984240, -14.127098) " x="7.41281179" y="12.5556689" width="3.14285714" height="3.14285714" rx="0.75" />
+                                                    <rect fill="#000000" opacity="0.3" transform="translate(15.269955, 14.127098) rotate(-45.000000) translate(-15.269955, -14.127098) " x="13.6985261" y="12.5556689" width="3.14285714" height="3.14285714" rx="0.75" />
+                                                    <rect fill="#000000" transform="translate(12.127098, 17.269955) rotate(-45.000000) translate(-12.127098, -17.269955) " x="10.5556689" y="15.6985261" width="3.14285714" height="3.14285714" rx="0.75" />
+                                                    <rect fill="#000000" transform="translate(12.127098, 10.984240) rotate(-45.000000) translate(-12.127098, -10.984240) " x="10.5556689" y="9.41281179" width="3.14285714" height="3.14285714" rx="0.75" />
+                                                </g>
+                                            </svg>
+                                        </span>
+                                    </span>
+
+                                    <a class="menu-title" href="http://localhost/pedagogie/deliberation/deliberationRegroupee.php">Délibération par Regroupée</a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -265,261 +300,297 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
                         <div id="kt_content_container" class="container-xxl">
                             <div class="tab-pane w-100" id="nav-tachePost" role="tabpanel" aria-labelledby="nav-tachePost-tab">
                                 <div class="mt-1 container-fluid card p-5">
-                                    <div class="card-header border-0 pt-5">
+                                    <div class="card-header border-0 pt-5" id="filterSession">
                                         <h1 class="mb-4">Liste des Unités d'Enseignement (UE)</h1>
-                                        <div id="filterContainer" class="mb-3 d-flex flex-wrap align-items-center justify-content-start">
-                                            <div class="m-1">
-
-                                                <label for="filiterFiliere" class="me-2 fw-bold">Filière</label>
-                                                <select id="filiterFiliere" class="form-select form-select-solid fw-bold w-200px">
-                                                    <option value="">Sélectionner une filière</option>
-                                                </select>
-                                            </div>
-                                            <div class="m-1">
-                                                <label for="filterOption" class="ms-4 me-2 fw-bold">Options</label>
-                                                <select id="filterOption" class="form-select form-select-solid fw-bold w-200px">
-                                                    <option value="">Sélectionner une option</option>
-                                                </select>
-                                            </div>
-                                            <div class="m-1">
-                                                <label for="filterCycle" class="ms-4 me-2 fw-bold">Cycle</label>
-                                                <select id="filterCycle" class="form-select form-select-solid fw-bold w-200px">
-                                                    <option value="">Sélectionner un Cycle</option>
-                                                    <option value="1">Licence</option>
-                                                    <option value="2">Master</option>
-                                                    <option value="3">Doctorat</option>
-                                                </select>
-                                            </div>
-                                            <div class="m-1">
-                                                <label for="filterNiveau" class="ms-4 me-2 fw-bold">Niveau</label>
-                                                <select id="filterNiveau" class="form-select form-select-solid fw-bold w-200px">
-                                                    <option value="">Sélectionner un Niveau</option>
-                                                </select>
-                                            </div>
-                                            <div class="m-1">
-                                                <label for="filterSemester" class="ms-4 me-2 fw-bold">Semestre</label>
-                                                <select id="filterSemester" class="form-select form-select-solid fw-bold w-200px">
-                                                    <option value="">Sélectionner un Semestre</option>
-                                                    <option value="1">Semestre 1</option>
-                                                    <option value="2">Semestre 2</option>
-                                                </select>
-                                            </div>
-                                            <div class="m-1 d-none">
-                                                <label for="filterSession" class="ms-4 me-2 fw-bold">Session</label>
-                                                <select id="filterSession" class="form-select form-select-solid fw-bold w-250px">
-                                                    <!-- <option value="">Sélectionner un Session</option> -->
-                                                    <option value="1">Session normale</option>
-                                                    <option value="2">Session rattrapage</option>
-                                                </select>
-                                            </div>
+                                        <div class="row g-3">
+                                        <div class="col-md-6 col-lg-3">
+                                            <label class="filter-label">
+                                                <i class="fas fa-graduation-cap me-1"></i> Filière
+                                            </label>
+                                            <select id="filiterFiliere" class="form-select filter-select">
+                                                <option value="">Sélectionner une filière</option>
+                                            </select>
                                         </div>
+                                        
+                                        <div class="col-md-6 col-lg-2">
+                                            <label class="filter-label">
+                                                <i class="fas fa-layer-group me-1"></i> Cycle
+                                            </label>
+                                            <select id="filterCycle" class="form-select filter-select">
+                                                <option value="">Sélectionner un Cycle</option>
+                                                <option value="1">Licence</option>
+                                                <option value="2">Master</option>
+                                                <option value="3">Doctorat</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="col-md-6 col-lg-2">
+                                            <label class="filter-label">
+                                                <i class="fas fa-sliders-h me-1"></i> Niveau
+                                            </label>
+                                            <select id="filterNiveau" class="form-select filter-select">
+                                                <option value="">Sélectionner un Niveau</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="col-md-6 col-lg-2">
+                                            <label class="filter-label">
+                                                <i class="fas fa-calendar-alt me-1"></i> Semestre
+                                            </label>
+                                            <select id="filterSemester" class="form-select filter-select">
+                                                <option value="">Sélectionner un Semestre</option>
+                                                <option value="1">Semestre 1</option>
+                                                <option value="2">Semestre 2</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="col-md-6 col-lg-3">
+                                            <label class="filter-label">
+                                                <i class="fas fa-cogs me-1"></i> Option
+                                            </label>
+                                            <select id="filterOption" class="form-select filter-select">
+                                                <option value="">Sélectionner une option</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                     </div>
                                     <div class="card-body pt-4 bg-light px-5">
                                         <div class="row g-4"> <!-- Utiliser g-4 pour l'espacement entre colonnes -->
-    
-    <!-- COLONNE UE -->
-    <div class="col-lg-3">
-        <div class="card h-100"> <!-- h-100 pour hauteur égale -->
-            <div class="card-header border-bottom">
-                <h2 class="card-title h5 mb-0">Liste des UE</h2>
-                <div>
-                    <span id="ndRepeche" class="mt-0 mr-0 badge fs-bold bg-primary"></span>
-                </div>
-            </div>
-            <div class="card-body" id="ueBoutonContainer">
-                <!-- Contenu dynamique -->
-            </div>
-            <div class="card-footer border-top bg-light">
-                <!-- Footer content -->
-                 <div id="intervalleNotesContainer" class="d-flex flex-wrap m-0"></div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- COLONNE STATISTIQUES ET EC -->
-    <div class="col-lg-9">
-        <div class="card h-100">
-            
-            <!-- EN-TÊTE STATISTIQUES -->
-            <!-- Remplacer la section EN-TÊTE STATISTIQUES dans deliberationUe.php -->
 
-<div class="card-header border-bottom pt-4">
-    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 w-100">
-        
-        <!-- BLOC NOTES -->
-        <div class="col">
-            <div class="stat-block">
-                <h3 class="stat-title h6 text-muted mb-2">Notes</h3>
-                <div class="stat-item bg-light-success">
-                    <i class="fas fa-award text-warning" aria-hidden="true"></i>
-                    <span class="stat-label">Max :</span>
-                    <span class="stat-value" id="meilleureNoteUE">0</span>
-                </div>
-                <div class="stat-item bg-light-danger mt-2">
-                    <i class="fas fa-arrow-down text-danger" aria-hidden="true"></i>
-                    <span class="stat-label">Min :</span>
-                    <span class="stat-value" id="moinsBonneNoteUE">0</span>
-                </div>
-            </div>
-        </div>
-        
-        <!-- BLOC RÉUSSITE -->
-        <div class="col">
-            <div class="stat-block">
-                <h3 class="stat-title h6 text-muted mb-2">Réussite</h3>
-                <div class="stat-item bg-light-primary">
-                    <i class="fas fa-check-circle text-success" aria-hidden="true"></i>
-                    <span class="stat-label">Taux :</span>
-                    <span class="stat-value" id="valideUE">0%</span>
-                </div>
-                <div class="stat-item bg-light-warning mt-2">
-                    <i class="fas fa-check-circle text-success" aria-hidden="true"></i>
-                    <span class="stat-label">Effectif :</span>
-                    <span class="stat-value" id="effectifReussite">0</span>
-                </div>
-            </div>
-        </div>
-        
-        <!-- BLOC ÉCHEC -->
-        <div class="col">
-            <div class="stat-block">
-                <h3 class="stat-title h6 text-muted mb-2">Échec</h3>
-                <div class="stat-item bg-light-primary">
-                    <i class="fas fa-times-circle text-danger" aria-hidden="true"></i>
-                    <span class="stat-label">Taux :</span>
-                    <span class="stat-value" id="nonValideUE">0%</span>
-                </div>
-                <div class="stat-item bg-light-warning mt-2">
-                    <i class="fas fa-times-circle text-danger" aria-hidden="true"></i>
-                    <span class="stat-label">Effectif :</span>
-                    <span class="stat-value" id="effectifEchec">0</span>
-                </div>
-            </div>
-        </div>
-        
-        <!-- BLOC PRÉSENCE -->
-        <div class="col">
-            <div class="stat-block ">
-                <h3 class="stat-title h6 text-muted mb-2">Présence</h3>
-                <div class="stat-item bg-light-info">
-                    <i class="fas fa-user-check text-success" aria-hidden="true"></i>
-                    <span class="stat-label">Présents :</span>
-                    <span class="stat-value" id="presentUE">0</span>
-                </div>
-                <div class="stat-item bg-light-danger mt-2">
-                    <i class="fas fa-user-times text-danger" aria-hidden="true"></i>
-                    <span class="stat-label">Absents :</span>
-                    <span class="stat-value" id="absentUE">0</span>
-                </div>
-            </div>
-        </div>
-        
-        <!-- BLOC GLOBAL -->
-        <div class="col">
-            <div class="stat-block">
-                <h3 class="stat-title h6 text-muted mb-2">Global</h3>
-                <div class="stat-item bg-light-info">
-                    <i class="fas fa-users text-primary" aria-hidden="true"></i>
-                    <span class="stat-label">Effectif :</span>
-                    <span class="stat-value" id="nombreEtudiants">0</span>
-                </div>
-                <div class="stat-item bg-light-primary mt-2">
-                    <i class="fas fa-calculator text-primary" aria-hidden="true"></i>
-                    <span class="stat-label">Moyenne :</span>
-                    <span class="stat-value" id="moyenneUE">0</span>
-                </div>
-            </div>
-        </div>
-        
+                                            <!-- COLONNE UE -->
+                                            <div class="col-lg-3">
+                                                <div class="card h-100"> <!-- h-100 pour hauteur égale -->
+                                                    <div class="card-header border-bottom">
+                                                        <h2 class="card-title h5 mb-0">Liste des UE</h2>
+                                                        <div>
+                                                            <span id="ndRepeche" class="mt-0 mr-0 badge fs-bold bg-primary"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-body" id="ueBoutonContainer">
+                                                        <!-- Contenu dynamique -->
+                                                    </div>
+                                                    <div class="card-footer border-top bg-light">
+                                                        <!-- Footer content -->
+                                                        <div id="intervalleNotesContainer" class="d-flex flex-wrap m-0"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- COLONNE STATISTIQUES ET EC -->
+                                            <div class="col-lg-9">
+                                                <div class="card h-100">
+
+                                                    <!-- EN-TÊTE STATISTIQUES -->
+                                                    <!-- Remplacer la section EN-TÊTE STATISTIQUES dans deliberationUe.php -->
+
+                                                    <div class="card-header border-bottom pt-4">
+                                                        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2 w-100">
+
+                                                            <!-- BLOC NOTES -->
+                                                            <div class="col">
+                                                                <div class="stat-block">
+                                                                    <h3 class="stat-title h6 text-muted mb-2">Notes</h3>
+                                                                    <div class="stat-item bg-light-success">
+                                                                        <i class="fas fa-award text-warning" aria-hidden="true"></i>
+                                                                        <span class="stat-label">Max :</span>
+                                                                        <span class="stat-value" id="meilleureNoteUE">0</span>
+                                                                    </div>
+                                                                    <div class="stat-item bg-light-danger mt-2">
+                                                                        <i class="fas fa-arrow-down text-danger" aria-hidden="true"></i>
+                                                                        <span class="stat-label">Min :</span>
+                                                                        <span class="stat-value" id="moinsBonneNoteUE">0</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- BLOC RÉUSSITE -->
+                                                            <div class="col">
+                                                                <div class="stat-block">
+                                                                    <h3 class="stat-title h6 text-muted mb-2">Réussite</h3>
+                                                                    <div class="stat-item bg-light-primary">
+                                                                        <i class="fas fa-check-circle text-success" aria-hidden="true"></i>
+                                                                        <span class="stat-label">Taux :</span>
+                                                                        <span class="stat-value" id="valideUE">0%</span>
+                                                                    </div>
+                                                                    <div class="stat-item bg-light-warning mt-2">
+                                                                        <i class="fas fa-check-circle text-success" aria-hidden="true"></i>
+                                                                        <span class="stat-label">Effectif :</span>
+                                                                        <span class="stat-value" id="effectifReussite">0</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- BLOC ÉCHEC -->
+                                                            <div class="col">
+                                                                <div class="stat-block">
+                                                                    <h3 class="stat-title h6 text-muted mb-2">Échec</h3>
+                                                                    <div class="stat-item bg-light-primary">
+                                                                        <i class="fas fa-times-circle text-danger" aria-hidden="true"></i>
+                                                                        <span class="stat-label">Taux :</span>
+                                                                        <span class="stat-value" id="nonValideUE">0%</span>
+                                                                    </div>
+                                                                    <div class="stat-item bg-light-warning mt-2">
+                                                                        <i class="fas fa-times-circle text-danger" aria-hidden="true"></i>
+                                                                        <span class="stat-label">Effectif :</span>
+                                                                        <span class="stat-value" id="effectifEchec">0</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- BLOC PRÉSENCE -->
+                                                            <div class="col">
+                                                                <div class="stat-block ">
+                                                                    <h3 class="stat-title h6 text-muted mb-2">Présence</h3>
+                                                                    <div class="stat-item bg-light-info">
+                                                                        <i class="fas fa-user-check text-success" aria-hidden="true"></i>
+                                                                        <span class="stat-label">Présents :</span>
+                                                                        <span class="stat-value" id="presentUE">0</span>
+                                                                    </div>
+                                                                    <div class="stat-item bg-light-danger mt-2">
+                                                                        <i class="fas fa-user-times text-danger" aria-hidden="true"></i>
+                                                                        <span class="stat-label">Absents :</span>
+                                                                        <span class="stat-value" id="absentUE">0</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- BLOC GLOBAL -->
+                                                            <div class="col">
+                                                                <div class="stat-block">
+                                                                    <h3 class="stat-title h6 text-muted mb-2">Global</h3>
+                                                                    <div class="stat-item bg-light-info">
+                                                                        <i class="fas fa-users text-primary" aria-hidden="true"></i>
+                                                                        <span class="stat-label">Effectif :</span>
+                                                                        <span class="stat-value" id="nombreEtudiants">0</span>
+                                                                    </div>
+                                                                    <div class="stat-item bg-light-primary mt-2">
+                                                                        <i class="fas fa-calculator text-primary" aria-hidden="true"></i>
+                                                                        <span class="stat-label">Moyenne :</span>
+                                                                        <span class="stat-value" id="moyenneUE">0</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- CORPS AVEC CONTRÔLES ET TABLEAU -->
+                                                    <div class="card-body">
+
+                                                        <!-- PANEL CONTRÔLES SIMULATION -->
+                                                        <div class="simulation-panel card mb-4">
+                                                            <div class="card-body">
+                                                                <div class="row g-3 align-items-end">
+
+                                                                    <!-- Sélecteur Stratégie -->
+                                                                    <div class="col-md-4">
+                                                                        <label for="strategySelect" class="form-label fw-bold">
+                                                                            Stratégie de calcul
+                                                                        </label>
+                                                                        <select id="strategySelect" class="form-select">
+                                                                            <option value="neutral">Neutre (pondérée par coef)</option>
+                                                                            <option value="favor_low">Avantager notes faibles</option>
+                                                                            <option value="favor_high">Avantager notes fortes</option>
+                                                                        </select>
+                                                                    </div>
+
+                                                                    <!-- Sélecteur Arrondi -->
+                                                                    <div class="col-md-3">
+                                                                        <label for="roundingSelect" class="form-label fw-bold">
+                                                                            Précision d'affichage
+                                                                        </label>
+                                                                        <select id="roundingSelect" class="form-select">
+                                                                            <option value="0.01">0.01 (précis)</option>
+                                                                            <option value="0.25">0.25</option>
+                                                                            <option value="0.5">0.5</option>
+                                                                            <option value="1">1.0 (entier)</option>
+                                                                        </select>
+                                                                    </div>
+
+                                                                    <!-- Checkbox -->
+                                                                    <div class="col-md-3">
+                                                                        <div class="form-check form-switch">
+                                                                            <input class="form-check-input" type="checkbox" id="lockGe10">
+                                                                            <label class="form-check-label fw-bold" for="lockGe10">
+                                                                                Bloquer notes ≥ 10
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Bouton Action -->
+                                                                    <div class="col-md-2">
+                                                                        <button type="button" class="btn btn-primary w-100" id="btnRunSimu">
+                                                                            <i class="fas fa-play me-2"></i>
+                                                                        </button>
+                                                                    </div>
+
+                                                                    <!-- Message d'information -->
+                                                                    <div class="col-12">
+                                                                        <div class="alert alert-info py-2 mb-0" role="alert">
+                                                                            <small>
+                                                                                <i class="fas fa-info-circle me-1"></i>
+                                                                                La simulation modifie temporairement les notes pour l'analyse.
+                                                                            </small>
+                                                                        </div>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- TABLEAU DES ÉTUDIANTS -->
+                                                        <div class="table-responsive" id="ecTableContainer">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <button class="btn btn-sm btn-outline-primary d-none" id="btnVoirDeliberation">
+            <i class="fas fa-gavel me-1"></i> Voir la délibération
+        </button>
     </div>
-</div>
-            
-            <!-- CORPS AVEC CONTRÔLES ET TABLEAU -->
-            <div class="card-body">
-                
-                <!-- PANEL CONTRÔLES SIMULATION -->
-                <div class="simulation-panel card mb-4">
-                    <div class="card-body">
-                        <div class="row g-3 align-items-end">
-                            
-                            <!-- Sélecteur Stratégie -->
-                            <div class="col-md-4">
-                                <label for="strategySelect" class="form-label fw-bold">
-                                    Stratégie de calcul
-                                </label>
-                                <select id="strategySelect" class="form-select">
-                                    <option value="neutral">Neutre (pondérée par coef)</option>
-                                    <option value="favor_low">Avantager notes faibles</option>
-                                    <option value="favor_high">Avantager notes fortes</option>
-                                </select>
-                            </div>
-                            
-                            <!-- Sélecteur Arrondi -->
-                            <div class="col-md-3">
-                                <label for="roundingSelect" class="form-label fw-bold">
-                                    Précision d'affichage
-                                </label>
-                                <select id="roundingSelect" class="form-select">
-                                    <option value="0.01">0.01 (précis)</option>
-                                    <option value="0.25">0.25</option>
-                                    <option value="0.5">0.5</option>
-                                    <option value="1">1.0 (entier)</option>
-                                </select>
-                            </div>
-                            
-                            <!-- Checkbox -->
-                            <div class="col-md-3">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="lockGe10">
-                                    <label class="form-check-label fw-bold" for="lockGe10">
-                                        Bloquer notes ≥ 10
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <!-- Bouton Action -->
-                            <div class="col-md-2">
-                                <button type="button" class="btn btn-primary w-100" id="btnRunSimu">
-                                    <i class="fas fa-play me-2"></i>
-                                </button>
-                            </div>
-                            
-                            <!-- Message d'information -->
-                            <div class="col-12">
-                                <div class="alert alert-info py-2 mb-0" role="alert">
-                                    <small>
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        La simulation modifie temporairement les notes pour l'analyse.
-                                    </small>
-                                </div>
-                            </div>
-                            
-                        </div>
+    
+    <!-- Modal pour les résultats de délibération -->
+    <div class="modal fade" id="etudiantsUEModal" tabindex="-1" aria-labelledby="etudiantsUEModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="etudiantsUEModalLabel">
+                        <i class="fas fa-gavel me-2"></i>
+                        Résultats de la délibération
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="deliberationResultsContainer">
+                        <!-- Résultats chargés dynamiquement -->
                     </div>
                 </div>
-                
-                <!-- TABLEAU DES ÉTUDIANTS -->
-                <div class="table-responsive" id="ecTableContainer">
-                    <table class="table table-hover align-middle" id="ecTable" aria-label="Tableau des éléments constitutifs">
-                        <thead class="table-light">
-                            <tr>
-                                <th scope="col" width="120">Matricule</th>
-                                <th scope="col">Nom complet</th>
-                                <th scope="col" width="100">Note</th>
-                                <th scope="col" width="120">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ecTableBody">
-                            <!-- Données dynamiques -->
-                        </tbody>
-                    </table>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Fermer
+                    </button>
                 </div>
-                <div id="resultats"></div>
-                
             </div>
         </div>
     </div>
+    
+    <table class="table table-hover align-middle" id="ecTable">
+        <thead class="table-light">
+            <tr>
+                <th scope="col" width="120">Matricule</th>
+                <th scope="col">Nom complet</th>
+                <th scope="col" width="100">Note</th>
+                <th scope="col" width="120">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="ecTableBody">
+            <!-- Données dynamiques -->
+        </tbody>
+    </table>
 </div>
+                                                        <div id="resultats"></div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <!-- etudiantsUEModal -->
                                         <div class="modal fade" id="etudiantsUEModal" tabindex="-1" aria-labelledby="etudiantsUEModalLabel" aria-hidden="true">
                                             <div class="modal-dialog modal-xl modal-dialog-centered">

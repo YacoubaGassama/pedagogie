@@ -32,10 +32,11 @@ switch ($action) {
 }
 // Fonction pour rechercher un étudiant par matricule
 function searchEtudiant($pdo, $matricule) {
-    $sql = "SELECT scolarite_etudiants.*,options.option, niveau FROM scolarite_etudiants 
+    $sql = "SELECT scolarite_etudiants.*,options.option, niveau, niv.id as idN, options.id as idOpt, m.nom, m.id as idMaq FROM scolarite_etudiants 
     join scolarite_inscription_pedagogique on scolarite_etudiants.matricule = scolarite_inscription_pedagogique.matricule
     JOIN options ON scolarite_inscription_pedagogique.idOption = options.id
     join niveauformation niv on options.idNiveauFormation = niv.id
+    JOIN maquette m ON m.idOption = options.id
     WHERE scolarite_etudiants.matricule = :matricule
     ORDER BY scolarite_inscription_pedagogique.dateEnregistrement LIMIT 1";
     $stmt = $pdo->prepare($sql);
@@ -52,7 +53,8 @@ function getUEsByEtudiant($pdo, $matricule) {
     JOIN scolarite_inscription_pedagogique_ue sipu ON sipu.idUE = ue.id
     JOIN scolarite_inscription_pedagogique sip ON sip.id = sipu.idInscriptionPedagogique
     WHERE sip.matricule = :matricule AND sip.statut = 1
-    AND maquette.idEtat = 3 AND sip.idAnneeUniversitaire = (SELECT MAX(id) FROM scolarite_anneeuniversitaire)";
+    AND maquette.idEtat = 3 AND sip.idAnneeUniversitaire = (SELECT MAX(id) FROM scolarite_anneeuniversitaire)
+    ORDER BY ue.code";
     $stmt = $pdo->prepare($sql);
     $stmt->execute(['matricule' => $matricule]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);

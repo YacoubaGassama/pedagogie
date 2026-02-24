@@ -6,6 +6,20 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Produit",
+            "request": "launch",
+            "mainClass": "Produit",
+            "projectName": "pedagogie_735bbce4"
+        },
+        {
+            "type": "java",
+            "name": "CompteBancaire",
+            "request": "launch",
+            "mainClass": "CompteBancaire",
+            "projectName": "pedagogie_735bbce4"
+        },
+        {
+            "type": "java",
             "name": "TEST",
             "request": "launch",
             "mainClass": "TEST",

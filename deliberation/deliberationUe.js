@@ -16,43 +16,43 @@ let currentEligibles = [];
 let currentIntervalle = {};
 let allFilieres = [];
 let allOptions = [];
-sessionSelect.addEventListener('change', () => {
-    if (!filieresSelect.value) {
-        showAlert('Filière');
-        sessionSelect.value = '';
-        return;
-    }
+// sessionSelect.addEventListener('change', () => {
+//     if (!filieresSelect.value) {
+//         showAlert('Filière');
+//         sessionSelect.value = '';
+//         return;
+//     }
 
-    if (!niveauxFormationSelect.value) {
-        showAlert('Niveau de formation');
-        sessionSelect.value = '';
-        return;
-    }
+//     if (!niveauxFormationSelect.value) {
+//         showAlert('Niveau de formation');
+//         sessionSelect.value = '';
+//         return;
+//     }
 
-    if (!cycleSelect.value) {
-        showAlert('Cycle');
-        sessionSelect.value = '';
-        return;
-    }
+//     if (!cycleSelect.value) {
+//         showAlert('Cycle');
+//         sessionSelect.value = '';
+//         return;
+//     }
 
-    if (!optionsSelect.value) {
-        showAlert('Option');
-        sessionSelect.value = '';
-        return;
-    }
+//     if (!optionsSelect.value) {
+//         showAlert('Option');
+//         sessionSelect.value = '';
+//         return;
+//     }
 
-    if (!semestersSelect.value) {
-        showAlert('Semestre');
-        sessionSelect.value = '';
-        return;
-    }
-    if (!selectedUEId) {
-        showAlert('UE');
-        sessionSelect.value = '';
-        return;
-    }
-    loadECs(selectedUEId)
-})
+//     if (!semestersSelect.value) {
+//         showAlert('Semestre');
+//         sessionSelect.value = '';
+//         return;
+//     }
+//     if (!selectedUEId) {
+//         showAlert('UE');
+//         sessionSelect.value = '';
+//         return;
+//     }
+//     loadECs(selectedUEId)
+// })
 function showAlert(champ) {
     Swal.fire({
         icon: 'warning',
@@ -106,8 +106,8 @@ function getNiveauxFormation(idCycleFormation = 0) {
         .then(response => response.json());
 }
 
-function getOptions(idFiliere = 0) {
-    return fetch(`deliberationUeController.php?action=listOptionsByFiliere&idFiliere=${idFiliere}`)
+function getOptions(idFiliere = 0, idNiveauFormation = 0) {
+    return fetch(`deliberationUeController.php?action=listOptionsByFiliere&idFiliere=${idFiliere}&idNiveauFormation=${idNiveauFormation}`)
         .then(response => response.json());
 }
 
@@ -119,7 +119,7 @@ function getMaquetteUEs(filters) {
 
 function getEtudiantByUE(ueId) {
     const session_id = document.getElementById('filterSession').value;
-    return fetch(`deliberationUeController.php?action=getEtudiantByUE&idUE=${ueId}&session_id=${session_id}`)
+    return fetch(`deliberationUeController.php?action=getEtudiantByUE&idUE=${ueId}&session_id=1`)
         .then(response => response.json());
 }
 
@@ -149,9 +149,9 @@ function loadFilieres() {
 }
 
 // Chargement des options
-function loadOptions(filiereId = null) {
+function loadOptions(filiereId = null, niveauFormationId = null) {
     if (filiereId) {
-        return getOptions(filiereId)
+        return getOptions(filiereId, niveauFormationId)
             .then(options => {
                 initializeSelect(optionsSelect, 'Sélectionner une Option');
                 options.forEach(opt => {
@@ -219,7 +219,7 @@ function initializePage() {
     // Charger les données initiales
     Promise.all([
         loadFilieres(),
-        loadOptions()
+        // loadOptions()
     ]).then(() => {
         setupEventListeners();
         initialiserIntervallesNotes();
@@ -239,15 +239,25 @@ function setupEventListeners() {
     // Écouteur pour la filière
     filieresSelect.addEventListener('change', function () {
         const selectedFiliereId = this.value;
+        const selectedNiveauFormationId = niveauxFormationSelect.value;
         if (selectedFiliereId) {
-            loadOptions(selectedFiliereId);
+            loadOptions(selectedFiliereId, selectedNiveauFormationId);
+        } else {
+            loadOptions();
+        }
+    });
+    niveauxFormationSelect.addEventListener('change', function () {
+        const selectedFiliereId = filieresSelect.value;
+        const selectedNiveauFormationId = this.value;
+        if (selectedFiliereId) {
+            loadOptions(selectedFiliereId, selectedNiveauFormationId);
         } else {
             loadOptions();
         }
     });
 
     // Écouteurs pour les autres filtres
-    [semestersSelect, niveauxFormationSelect, filieresSelect, optionsSelect, cycleSelect].forEach(select => {
+    [semestersSelect, niveauxFormationSelect, optionsSelect].forEach(select => {
         select.addEventListener('change', loadUEs);
     });
 }
@@ -335,7 +345,6 @@ function initialiserIntervallesNotes() {
         intervalleNotesContainer.appendChild(intervalleNoteSubContainer);
     });
 }
-
 // Chargement des UEs
 function loadUEs() {
     const ueBoutonContainer = document.getElementById('ueBoutonContainer');
@@ -377,8 +386,9 @@ function loadUEs() {
         .then(ues => {
             ueBoutonContainer.innerHTML = '';
             ueBoutonContainer.className = 'd-flex flex-wrap gap-2';
-            const ndRepeche = document.getElementById('ndRepeche')
-            let nbUERepechees = 0
+            const ndRepeche = document.getElementById('ndRepeche');
+            let nbUERepechees = 0;
+
             if (ues && ues.length > 0) {
                 ues.forEach(ue => {
                     const ueButton = document.createElement('button');
@@ -386,16 +396,35 @@ function loadUEs() {
                     ueButton.className = 'btn btn-outline-primary ue-button';
                     ueButton.innerHTML = `
                         <div class="text-start">
-                            <div class="fw-bold small d-flex justify-content-between">${ue.code} <span class="badge">${ue.repechage ? '<i class="fas fa-check text-success"></i>' : ''}</span></div>
-                            <div class="small text-muted">${ue.nomUE.substring(0, 25)}${ue.nomUE.length > 25 ? '...' : ''}</div>
-                            
+                            <div class="fw-bold small d-flex justify-content-between">
+                                ${ue.code} 
+                                <span class="badge">${ue.repechage ? '<i class="fas fa-check text-success"></i>' : ''}</span>
+                            </div>
+                            <div class="small text-muted">
+                                ${ue.nomUE.substring(0, 25)}${ue.nomUE.length > 25 ? '...' : ''}
+                            </div>
                         </div>
                     `;
+
                     if (ue.repechage) {
-                        nbUERepechees++
+                        nbUERepechees++;
                     }
                     ueButton.addEventListener('click', () => {
                         selectedUEId = ue.idUE;
+                        
+                        // Activer le bouton Voir délibération si l'UE a un repêchage
+                        const btnVoirDeliberation = document.getElementById('btnVoirDeliberation');
+                        if (btnVoirDeliberation) {
+                            if (ue.repechage) {
+                                btnVoirDeliberation.classList.remove('d-none');
+                                btnVoirDeliberation.disabled = false;
+                                // Stocker l'ID de l'UE pour le bouton
+                                btnVoirDeliberation.dataset.ueId = ue.idUE;
+                            } else {
+                                btnVoirDeliberation.classList.add('d-none');
+                                btnVoirDeliberation.disabled = true;
+                            }
+                        }
 
                         // Mettre en surbrillance le bouton sélectionné
                         document.querySelectorAll('.ue-button').forEach(btn => {
@@ -405,7 +434,58 @@ function loadUEs() {
                         ueButton.classList.remove('btn-outline-primary');
                         ueButton.classList.add('btn-primary');
 
-                        loadECs(ue.idUE);
+                        // Vérifier la complétude des évaluations
+                        verifierEvaluationsUE(selectedUEId).then(stats => {
+                            console.log('Statistiques de complétude:', stats);
+
+                            const totalEtudiants = stats.total_etudiants || 0;
+                            const etudiantsComplets = stats.etudiants_complets || 0;
+                            const pourcentageComplets = stats.pourcentage_complets || 0;
+                            const etudiantsIncomplets = stats.etudiants_incomplets || 0;
+
+                            if (pourcentageComplets < 100) {
+                                
+                                Swal.fire({
+                                    title: `${pourcentageComplets == 0 ? `<p class="text-danger text-center mb-2">Veuillez saisir les notes.</p>` : 'Notes incomplètes'}`,
+                                    html: `
+                                        <div class="text-start">
+                                        ${pourcentageComplets == 0 ? `` : `
+                                            <p class="fw-bold mb-2">Résumé des manques :</p>
+                                                <div class="mb-3">
+                                                <span class="badge bg-success me-2">Ayant composés : ${etudiantsComplets}</span>
+                                                <span class="badge bg-warning">N'ayant pas composés : ${etudiantsIncomplets}</span>
+                                                </div>
+                                            `}
+                                            ${etudiantsIncomplets > 0 && pourcentageComplets != 0 ? `<p class="text-danger mb-2">Il y a ${etudiantsIncomplets} étudiant(s) avec des notes d'examen manquantes.</p>` : ''}
+                                            ${etudiantsComplets > 0 && pourcentageComplets != 0 ? `<p class="text-success mb-2">Il y a ${etudiantsComplets} étudiant(s) avec des notes d'examen complètes.</p>` : ''}
+                                            ${totalEtudiants > 0  && pourcentageComplets != 0 ? `<p class="mb-2">Sur un total de ${totalEtudiants} étudiant(s) inscrits à cette UE.</p>` : ''}
+                                            ${pourcentageComplets > 0 ? `<p class="mb-2">Ce qui représente <strong>${pourcentageComplets.toFixed(2)}%</strong> des étudiants.</p>` : ''}
+                                            <div class="alert alert-info mt-3 mb-0">
+                                                <small>
+                                                    <i class="fas fa-info-circle me-1"></i>
+                                                    Seuls les étudiants avec toutes les notes d'examen sont considérés.
+                                                </small>
+                                            </div>
+                                        </div>
+                                    `,
+                                    icon: 'warning',
+                                    confirmButtonText: 'Voir la liste',
+                                    showCancelButton: true,
+                                    cancelButtonText: 'Fermer',
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        afficherListeEtudiantsIncomplets(stats.liste_etudiants_incomplets);
+                                    } else {
+                                        // loadECs(ue.idUE);
+                                    }
+                                });
+                            } else if (pourcentageComplets === 100) {
+                                loadECs(ue.idUE, stats.noteEtudiantsParEC);
+                            }
+                        }).catch(error => {
+                            console.error('Erreur vérification évaluations:', error);
+                            loadECs(ue.idUE);
+                        });
                     });
 
                     ueBoutonContainer.appendChild(ueButton);
@@ -418,7 +498,10 @@ function loadUEs() {
                     </div>
                 `;
             }
-            ndRepeche.textContent = `${nbUERepechees} / ${ues.length} faites`
+
+            if (ndRepeche) {
+                ndRepeche.textContent = `${nbUERepechees} / ${ues.length} faites`;
+            }
         })
         .catch(error => {
             console.error('Erreur:', error);
@@ -430,7 +513,388 @@ function loadUEs() {
             `;
         });
 }
+// Écouteur pour le bouton Voir délibération
+document.addEventListener('DOMContentLoaded', function() {
+    const btnVoirDeliberation = document.getElementById('btnVoirDeliberation');
+    
+    if (btnVoirDeliberation) {
+        btnVoirDeliberation.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const ueId = this.dataset.ueId;
+            if (!ueId) {
+                Swal.fire('Information', 'Veuillez sélectionner une UE avec un repêchage', 'info');
+                return;
+            }
+            
+            // Initialiser et afficher la modal
+            const modalElement = document.getElementById('etudiantsUEModal');
+            if (modalElement) {
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+                getDeliberationDeUE(ueId);
+            } else {
+                console.error('Modal etudiantsUEModal non trouvée');
+            }
+        });
+    }
+});
+// Fonction de récupération des repêchages pour une UE donnée
+// Fonction de récupération des repêchages pour une UE donnée
+function getDeliberationDeUE(ueId) {
+    const container = document.getElementById('deliberationResultsContainer');
 
+    if (!container) {
+        console.error('Container introuvable');
+        return;
+    }
+
+    // Afficher le loader
+    container.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Chargement...</span>
+            </div>
+            <p class="mt-2">Chargement...</p>
+        </div>
+    `;
+
+    fetch(`deliberationUeController.php?action=getDeliberationDeUE&idUE=${encodeURIComponent(ueId)}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data.success) {
+                container.innerHTML = `<div class="alert alert-danger">${data.message || 'Erreur inconnue'}</div>`;
+                return;
+            }
+
+            const ue = data.ue || {};
+            const etudiants = data.etudiants || [];
+
+            /* =====================================================
+                STATISTIQUES
+            ===================================================== */
+            
+            // Filtrer les étudiants par catégorie
+            const repeches = etudiants.filter(e => e.est_repeche === true);
+            const valides = etudiants.filter(e => !e.est_repeche && e.moyenne_ue >= 10);
+            const nonRepechesNonValides = etudiants.filter(e => !e.est_repeche && e.moyenne_ue < 10);
+            
+            // Compter les validés (ceux qui ont la moyenne sans repêchage)
+            const nbValides = valides.length;
+            
+            // Compter les non-repêchés (ceux qui n'ont pas la moyenne ET ne sont pas repêchés)
+            const nbNonRepeches = nonRepechesNonValides.length;
+            
+            // Compter les repêchés
+            const nbRepeches = repeches.length;
+            
+            const total = etudiants.length;
+
+            const stats = {
+                total_etudiants: total,
+                etudiants_repêchés: nbRepeches,
+                etudiants_valides: nbValides,
+                etudiants_non_repêchés: nbNonRepeches,
+                pourcentage_repêchage: total ? ((nbRepeches / total) * 100).toFixed(2) : 0,
+                pourcentage_validation: total ? ((nbValides / total) * 100).toFixed(2) : 0
+            };
+
+            /* =====================================================
+                GÉNÉRATION HTML PAR CATÉGORIE
+            ===================================================== */
+
+            // Générer HTML pour les repêchés
+            let repechesHtml = '';
+            let totalPointsJury = 0;
+            
+            repeches.forEach(e => {
+                const moyenne = e.moyenne_ue !== null && e.moyenne_ue !== undefined ? e.moyenne_ue.toFixed(2) : 'N/A';
+                const pointsJury = e.moyenne_ue !== null && e.moyenne_ue !== undefined ? (10 - e.moyenne_ue).toFixed(2) : 'N/A';
+                
+                if (e.moyenne_ue !== null && e.moyenne_ue !== undefined) {
+                    totalPointsJury += 10 - e.moyenne_ue;
+                }
+                
+                repechesHtml += `
+                    <tr class="table-success">
+                        <td>${escapeHtml(e.matricule || '')}</td>
+                        <td>${escapeHtml(e.nom || '')}</td>
+                        <td><span class="badge bg-success">Repêché</span></td>
+                        <td class="text-center">${moyenne}</td>
+                        <td class="text-center"><span class="badge bg-primary">10.00</span></td>
+                        <!-- <td class="text-center"><span class="badge bg-success">+ ${pointsJury}</span></td> -->
+                    </tr>
+                `;
+            });
+
+            if (repechesHtml === '') {
+                repechesHtml = '<tr><td colspan="6" class="text-center">Aucun étudiant repêché</td></tr>';
+            }
+
+            // Générer HTML pour les non-repêchés non validés
+            let nonRepechesHtml = '';
+            nonRepechesNonValides.forEach(e => {
+                const moyenne = e.moyenne_ue !== null && e.moyenne_ue !== undefined ? e.moyenne_ue.toFixed(2) : 'N/A';
+                
+                nonRepechesHtml += `
+                    <tr class="table-danger">
+                        <td>${escapeHtml(e.matricule || '')}</td>
+                        <td>${escapeHtml(e.nom || '')}</td>
+                        <td><span class="badge bg-danger">Non validé</span></td>
+                        <td class="text-center">${moyenne}</td>
+                        <!-- <td class="text-center">-</td> -->
+                        <!-- <td class="text-center"><span class="badge bg-secondary">0.00</span></td> -->
+                    </tr>
+                `;
+            });
+
+            if (nonRepechesHtml === '') {
+                nonRepechesHtml = '<tr><td colspan="6" class="text-center">Aucun étudiant non repêché</td></tr>';
+            }
+
+            // Générer HTML pour les validés
+            let validesHtml = '';
+            valides.forEach(e => {
+                const moyenne = e.moyenne_ue !== null && e.moyenne_ue !== undefined ? e.moyenne_ue.toFixed(2) : 'N/A';
+                
+                validesHtml += `
+                    <tr class="table-success">
+                        <td>${escapeHtml(e.matricule || '')}</td>
+                        <td>${escapeHtml(e.nom || '')}</td>
+                        <td><span class="badge bg-success">Validé</span></td>
+                        <td class="text-center">${moyenne}</td>
+                        <!-- <td class="text-center">-</td> -->
+                        <!-- <td class="text-center"><span class="badge bg-secondary">0.00</span></td> -->
+                    </tr>
+                `;
+            });
+
+            if (validesHtml === '') {
+                validesHtml = '<tr><td colspan="6" class="text-center">Aucun étudiant validé</td></tr>';
+            }
+
+            /* =====================================================
+                RENDU FINAL AVEC BOOTSTRAP 5
+            ===================================================== */
+            const etudiantsUEModalLabel = document.getElementById('etudiantsUEModalLabel');
+            if (etudiantsUEModalLabel) {
+                etudiantsUEModalLabel.textContent = `Délibération - ${ue.code || ''} - ${ue.nomUE || ''}`;
+            }
+            container.innerHTML = `
+                <div class="card border-info">
+                    <div class="card-body">
+                        <!-- Statistiques -->
+                        <div class="row mb-2">
+                            <div class="col-md-2 col-6 mb-2">
+                                <div class="border rounded p-3 text-center">
+                                    <small class="text-muted">Total étudiants</small>
+                                    <h3 class="mb-0">${stats.total_etudiants}</h3>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-2 col-6 mb-2">
+                                <div class="border rounded p-3 text-center">
+                                    <small class="text-muted">Repêchés</small>
+                                    <h3 class="text-warning mb-0">${nbRepeches}</h3>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-6 mb-2">
+                                <div class="border rounded p-3 text-center">
+                                    <small class="text-muted">Non repêchés</small>
+                                    <h3 class="text-danger mb-0">${nbNonRepeches}</h3>
+                                </div>
+                            </div>
+                           
+                            <div class="col-md-2 col-6 mb-2">
+                                <div class="border rounded p-3 text-center">
+                                    <small class="text-muted">Validés avant repêchage</small>
+                                    <h3 class="text-success mb-0">${nbValides}</h3>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-6 mb-2">
+                                <div class="border rounded p-3 text-center">
+                                    <small class="text-muted">Total validés</small>
+                                    <h3 class="text-info mb-0">${nbValides + nbRepeches}</h3>
+                                </div>
+                            </div>
+                             <div class="col-md-2 col-6 mb-2">
+                                <div class="border rounded p-3 text-center">
+                                    <small class="text-muted">Barre de repêchage</small>
+                                    <h3 class="text-danger mb-0">${ue.barre !== undefined ? parseFloat(ue.barre).toFixed(2) : 'N/A'}</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Onglets -->
+                        <ul class="nav nav-tabs" id="deliberationTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="repeches-tab" data-bs-toggle="tab" data-bs-target="#repeches" type="button" role="tab">
+                                    Repêchés <span class="badge bg-warning ms-1">${nbRepeches}</span>
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="nonrepeches-tab" data-bs-toggle="tab" data-bs-target="#nonrepeches" type="button" role="tab">
+                                    Non repêchés <span class="badge bg-danger ms-1">${nbNonRepeches}</span>
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="valides-tab" data-bs-toggle="tab" data-bs-target="#valides" type="button" role="tab">
+                                    Validés avant repêchage <span class="badge bg-success ms-1">${nbValides}</span>
+                                </button>
+                            </li>
+                        </ul>
+
+                        <!-- Contenu des onglets -->
+                        <div class="tab-content p-3 border border-top-0 rounded-bottom" id="deliberationTabContent">
+                            <div class="tab-pane fade show active" id="repeches" role="tabpanel">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Matricule</th>
+                                                <th>Nom</th>
+                                                <th>Statut</th>
+                                                <th class="text-center">Moyenne</th>
+                                                <th class="text-center">Note retenue</th>
+                                                <!-- <th class="text-center">Points</th> -->
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${repechesHtml}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <div class="tab-pane fade" id="nonrepeches" role="tabpanel">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Matricule</th>
+                                                <th>Nom</th>
+                                                <th>Statut</th>
+                                                <th class="text-center">Moyenne</th>
+                                                <!-- <th class="text-center">Note jury</th> -->
+                                                <!-- <th class="text-center">Points</th> -->
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${nonRepechesHtml}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <div class="tab-pane fade" id="valides" role="tabpanel">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Matricule</th>
+                                                <th>Nom</th>
+                                                <th>Statut</th>
+                                                <th class="text-center">Moyenne</th>
+                                                <!-- <th class="text-center">Note jury</th> -->
+                                                <!-- <th class="text-center">Points</th> -->
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${validesHtml}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        })
+        .catch(err => {
+            console.error('Erreur:', err);
+            container.innerHTML = `
+                <div class="alert alert-danger">
+                    <strong>Erreur :</strong> ${escapeHtml(err.message)}
+                </div>
+            `;
+        });
+}
+
+/**
+ * Fonction utilitaire pour échapper les caractères HTML
+ * (prévient les injections XSS)
+ */
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Nouvelle fonction pour afficher la liste des étudiants incomplets
+function afficherListeEtudiantsIncomplets(etudiantsIncomplets) {
+    if (!etudiantsIncomplets || etudiantsIncomplets.length === 0) {
+        Swal.fire('Information', 'Aucune évolution n\'a été enregistrée', 'info');
+        return;
+    }
+
+    let html = `
+        <div class="table-responsive" style="max-height: 400px;">
+            <table class="table table-sm table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Matricule</th>
+                        <th>Nom</th>
+                        <th>EC manquants</th>
+                        <th>Détails</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    etudiantsIncomplets.forEach(etudiant => {
+        const anomalies = etudiant.anomalies || etudiant.missing_evaluations || [];
+        const detailsAnomalies = anomalies
+            .map(a => a.ec_nom || a.ec_name)
+            .filter(Boolean)
+            .join(', ');
+
+        html += `
+            <tr>
+                <td><small>${etudiant.matricule}</small></td>
+                <td>${etudiant.nom}</td>
+                
+                <td class="text-center">
+                    <span class="badge bg-danger">${etudiant.ec_manquants || 0}</span>
+                </td>
+                <td>
+                    <small class="text-muted" title="${detailsAnomalies}">
+                        ${detailsAnomalies.substring(0, 30)}${detailsAnomalies.length > 30 ? '...' : ''}
+                    </small>
+                </td>
+            </tr>
+        `;
+    });
+
+    html += `
+                </tbody>
+            </table>
+        </div>
+    `;
+
+    Swal.fire({
+        title: `Étudiants incomplets (${etudiantsIncomplets.length})`,
+        html: html,
+        icon: 'info',
+        width: '800px',
+        confirmButtonText: 'Fermer'
+    });
+}
 // Configuration du repêchage
 function afficherConfigurationRepêchage(eligibles, intervalle) {
     currentEligibles = eligibles;
@@ -514,15 +978,16 @@ function afficherConfigurationRepêchage(eligibles, intervalle) {
 
     container.innerHTML = html;
 
-    // Gestionnaire d'événement pour le bouton de simulation
-    document.getElementById('btnRunSimu').addEventListener('click', () => {
-        if (!selectedUEId) {
-            Swal.fire('Information', 'Veuillez sélectionner une UE', 'info');
-            return;
-        }
-        lancerSimulation(intervalle.min, selectedUEId, intervalle);
-    });
 }
+// Gestionnaire d'événement pour le bouton de simulation
+document.getElementById('btnRunSimu').addEventListener('click', () => {
+    if (!selectedUEId || !currentIntervalle.min) {
+        Swal.fire('Information', 'Veuillez sélectionner une UE et un intervalle de simulation', 'info');
+        return;
+    }
+    console.log('Lancement de la simulation pour l\'UE ID:', selectedUEId, 'avec intervalle:', currentIntervalle);
+    lancerSimulation(currentIntervalle.min, selectedUEId, currentIntervalle);
+});
 // Lancement de la simulation
 function lancerSimulation(minMoy, ueId, intervalle) {
     const btnAction = document.getElementById('btnRunSimu');
@@ -556,32 +1021,32 @@ function lancerSimulation(minMoy, ueId, intervalle) {
         },
         body: JSON.stringify(dataToSend)
     }).then(res => {
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            return res.json();
-        }).then(data => {
-            btnAction.disabled = false;
-            btnAction.innerHTML = '<i class="fas fa-play me-2"></i>';
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+    }).then(data => {
+        btnAction.disabled = false;
+        btnAction.innerHTML = '<i class="fas fa-play me-2"></i>';
 
-            if (data.success) {
-                // Ajouter les noms complets aux résultats
-                const simulationsAvecNoms = data.simulations.map(sim => {
-                    const etudiant = currentEligibles.find(e => e.matricule === sim.matricule);
-                    return {
-                        ...sim,
-                        nom: etudiant ? `${etudiant.prenom} ${etudiant.nom}` : sim.matricule
-                    };
-                });
+        if (data.success) {
+            // Ajouter les noms complets aux résultats
+            const simulationsAvecNoms = data.simulations.map(sim => {
+                const etudiant = currentEligibles.find(e => e.matricule === sim.matricule);
+                return {
+                    ...sim,
+                    nom: etudiant ? `${etudiant.prenom} ${etudiant.nom}` : sim.matricule
+                };
+            });
 
-                afficherResultatsSimulation(simulationsAvecNoms, intervalle);
-            } else {
-                Swal.fire('Erreur', data.message || 'Erreur lors de la simulation', 'error');
-            }
-        }).catch(err => {
-            console.error('Erreur:', err);
-            btnAction.disabled = false;
-            btnAction.innerHTML = '<i class="fas fa-play me-2"></i> Lancer la simulation';
-            Swal.fire('Erreur', 'Erreur de connexion au serveur', 'error');
-        });
+            afficherResultatsSimulation(simulationsAvecNoms, intervalle);
+        } else {
+            Swal.fire('Erreur', data.message || 'Erreur lors de la simulation', 'error');
+        }
+    }).catch(err => {
+        console.error('Erreur:', err);
+        btnAction.disabled = false;
+        btnAction.innerHTML = '<i class="fas fa-play me-2"></i> Lancer la simulation';
+        Swal.fire('Erreur', 'Erreur de connexion au serveur', 'error');
+    });
 }
 
 // Affichage des résultats de simulation
@@ -684,7 +1149,7 @@ function afficherResultatsSimulation(simulations, intervalle) {
                     <td class="text-center">${parseFloat(ec.note_initial).toFixed(2)}</td>
                     <td class="text-center"><span class="fw-bold ">
                     <i class="bi bi-plus ${pointsJury !== 0 ? 'text-success' : ''}">
-                    ${pointsJury}
+                    ${pointsJury.toFixed(2)}
                     </i>
                     </span>
                     </td>
@@ -720,7 +1185,7 @@ function afficherResultatsSimulation(simulations, intervalle) {
 function sauvegarderNotesEnBase(simulations, intervalle) {
     // Récupérer l'idSemestre depuis les filtres
     const idSemestre = document.getElementById('filterSemester')?.value;
-    
+
     Swal.fire({
         title: 'Confirmer l\'application du repêchage',
         html: `
@@ -740,12 +1205,18 @@ function sauvegarderNotesEnBase(simulations, intervalle) {
         confirmButtonColor: '#d33',
         showLoaderOnConfirm: true,
         preConfirm: () => {
+            const lockGe10 = document.getElementById('lockGe10')?.checked ? true : false;
+            const strategy = document.getElementById('strategySelect')?.value || 'neutral';
+            const rounding = document.getElementById('roundingSelect')?.value || '0.01';
             const data = {
                 action: 'appliquerRepechage',
                 idUE: selectedUEId,
                 idSemestre: idSemestre,
                 simulations: simulations,
-                intervalle: intervalle
+                intervalle: intervalle,
+                strategy: strategy,
+                rounding_step: parseFloat(rounding),
+                lock_ge10: lockGe10
             };
 
             return fetch('deliberationUeController.php', {
@@ -755,18 +1226,18 @@ function sauvegarderNotesEnBase(simulations, intervalle) {
                 },
                 body: JSON.stringify(data)
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (!data.success) {
-                    throw new Error(data.message || 'Erreur lors de l\'application');
-                }
-                return data;
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) {
+                        throw new Error(data.message || 'Erreur lors de l\'application');
+                    }
+                    return data;
+                });
         }
     }).then((result) => {
         if (result.isConfirmed) {
@@ -787,7 +1258,7 @@ function sauvegarderNotesEnBase(simulations, intervalle) {
                 // Recharger les données pour voir les modifications
                 if (selectedUEId) {
                     loadECs(selectedUEId);
-                    
+
                     // Mettre à jour les badges d'intervalles
                     intervalleNote.forEach(intervalle => {
                         const badge = document.getElementById(`badgeIntervalle${intervalle.min}`);
@@ -839,7 +1310,7 @@ function actualiserStatsUE(stats) {
 }
 
 // Chargement des ECs
-function loadECs(ueId) {
+function loadECs(ueId, noteEtudiantsParEC = null) {
     // Réinitialiser les compteurs d'intervalles
 
     const ecTableContainer = document.getElementById('ecTableContainer')
@@ -854,8 +1325,11 @@ function loadECs(ueId) {
     let nbReussite = 0;
     let nbEchec = 0;
 
-    getEtudiantByUE(ueId)
-        .then(etudiants => {
+    const promesseEtudiants = noteEtudiantsParEC 
+    ? Promise.resolve(noteEtudiantsParEC) : 
+    getEtudiantByUE(ueId);
+    
+    promesseEtudiants.then(etudiants => {
             const ecTableBody = document.getElementById('ecTableBody');
             if (!ecTableBody) return;
             // Dans loadECs, mettre à jour la logique des intervalles :
@@ -1123,7 +1597,7 @@ function verifierRepêchageExistant(ueId) {
 function afficherAlerteRepêchageExistant(repechage) {
     const container = document.getElementById('resultats');
     if (!container) return;
-    
+
     const alertHtml = `
         <div class="alert alert-info alert-dismissible fade show" role="alert">
             <div class="d-flex">
@@ -1148,9 +1622,28 @@ function afficherAlerteRepêchageExistant(repechage) {
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     `;
-    
+
     // Insérer au début du container
     container.insertAdjacentHTML('afterbegin', alertHtml);
+}
+function verifierEvaluationsUE(ueId) {
+    return fetch(`deliberationUeController.php?action=verifierEvaluationsUE&idUE=${ueId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                return data.stats;
+            }
+            throw new Error(data.message || 'Erreur de vérification');
+        });
+}
+
+function getReasonLabel(reason) {
+    const labels = {
+        'aucune_note': 'Aucune note pour cet EC',
+        'non_compose': 'Non composé',
+        'pas_examen': 'Pas de note d\'examen (nature ≠ 2)'
+    };
+    return labels[reason] || reason;
 }
 // Exposer la fonction globalement
 window.revenirALaConfiguration = revenirALaConfiguration;
