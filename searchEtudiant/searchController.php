@@ -1,5 +1,6 @@
 <?php
 require_once '../config.php';
+require_once '../Crypto.php';
 $action = $_GET['action'];
 switch ($action) {
     case 'searchEtudiant':
@@ -32,16 +33,27 @@ switch ($action) {
 }
 // Fonction pour rechercher un étudiant par matricule
 function searchEtudiant($pdo, $matricule) {
-    $sql = "SELECT scolarite_etudiants.*,options.option, niveau, niv.id as idN, options.id as idOpt, m.nom, m.id as idMaq FROM scolarite_etudiants 
+    $sql = "SELECT scolarite_etudiants.*,options.option, niveau, niv.id as idN, options.id as idOpt, m.nom as nomMaquette, m.id as idMaq, scolarite_inscription_pedagogique.id as idInscriptionPedagogique FROM scolarite_etudiants 
     join scolarite_inscription_pedagogique on scolarite_etudiants.matricule = scolarite_inscription_pedagogique.matricule
     JOIN options ON scolarite_inscription_pedagogique.idOption = options.id
     join niveauformation niv on options.idNiveauFormation = niv.id
     JOIN maquette m ON m.idOption = options.id
-    WHERE scolarite_etudiants.matricule = :matricule
+    WHERE scolarite_etudiants.matricule = :matricule AND m.idEtat = 3
     ORDER BY scolarite_inscription_pedagogique.dateEnregistrement LIMIT 1";
+
     $stmt = $pdo->prepare($sql);
     $stmt->execute(['matricule' => $matricule]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $etudiants = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $crypto = new Crypto();
+    foreach ($etudiants as &$etudiant) {
+        $etudiant['idInscriptionPedagogique'] = $crypto->encrypt(
+            (string) $etudiant['idInscriptionPedagogique']
+        );
+    }
+    unset($etudiant);
+
+    return $etudiants;
 }
 
 // Fonction pour récupérer les UE auquellesl'étudiant est inscrit à partir de son matricule

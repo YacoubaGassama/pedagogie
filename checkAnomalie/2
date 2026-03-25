@@ -42,10 +42,10 @@ if ($postAction) {
                 $stmtAnnuler = $pdo->prepare("
     UPDATE repechage_historique rh
     JOIN repechage rep ON rep.idRepechage = rh.idRepechage
-    SET rh.statut = 'annulé'
+    SET rh.statut = 'annule'
     WHERE rep.idUe     = :idUE
       AND rep.statut   = 0
-      AND rh.statut    = 'appliqué'
+      AND rh.statut    = 'applique'
 ");
                 $stmtAnnuler->execute([':idUE' => $idUE]);
                 // Récupérer l'année universitaire active
@@ -107,7 +107,7 @@ if ($postAction) {
 
                 echo json_encode([
                     'success'      => true,
-                    'message'      => "Repêchage appliqué avec succès. $notesModifiees note(s) modifiée(s) pour $etudiantsTraites étudiant(s).",
+                    'message'      => "Repêchage applique avec succès. $notesModifiees note(s) modifiée(s) pour $etudiantsTraites étudiant(s).",
                     'idRepechage'  => $idRepechage,
                     'details'      => $resultats,
                     'sync'         => [
@@ -200,10 +200,10 @@ if ($postAction) {
                     $stmtAnnulerReph = $pdo->prepare("
                 UPDATE repechage_historique rh
                 JOIN repechage rep ON rep.idRepechage = rh.idRepechage
-                SET rh.statut = 'annulé'
+                SET rh.statut = 'annule'
                 WHERE rep.idUe   = :idUE
                   AND rep.statut = 1
-                  AND rh.statut  = 'appliqué'
+                  AND rh.statut  = 'applique'
             ");
                     $stmtAnnulerReph->execute([':idUE' => $idUE]);
 
@@ -363,73 +363,73 @@ if ($postAction) {
         // Modifier le case 'simulerRepechage' dans deliberationUeController.php
 
         case 'simulerRepechage':
-            $input = json_decode(file_get_contents('php://input'), true);
+    $input = json_decode(file_get_contents('php://input'), true);
 
-            if ($input) {
-                $idUE = isset($input['idUE']) ? (int)$input['idUE'] : null;
-                $minMoy = isset($input['minMoyenne']) ? (float)$input['minMoyenne'] : 8.0;
-                $strategy = $input['strategy'] ?? 'neutral';
-                $lockGE10 = filter_var($input['lock_ge10'] ?? false, FILTER_VALIDATE_BOOLEAN);
-                $displayStep = isset($input['rounding_step']) ? (float)$input['rounding_step'] : 0.01;
-                $etudiantsEligibles = $input['etudiantsEligibles'] ?? null;
-            } else {
-                $idUE = isset($_GET['idUE']) ? (int)$_GET['idUE'] : null;
-                $minMoy = isset($_GET['minMoyenne']) ? (float)$_GET['minMoyenne'] : 8.0;
-                $strategy = $_GET['strategy'] ?? 'neutral';
-                $lockGE10 = filter_var($_GET['lock_ge10'] ?? false, FILTER_VALIDATE_BOOLEAN);
-                $displayStep = isset($_GET['rounding_step']) ? (float)$_GET['rounding_step'] : 0.01;
-                $etudiantsEligibles = null;
-            }
+    if ($input) {
+        $idUE = isset($input['idUE']) ? (int)$input['idUE'] : null;
+        $minMoy = isset($input['minMoyenne']) ? (float)$input['minMoyenne'] : 8.0;
+        $strategy = $input['strategy'] ?? 'neutral';
+        $lockGE10 = filter_var($input['lock_ge10'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        $displayStep = isset($input['rounding_step']) ? (float)$input['rounding_step'] : 0.01;
+        $etudiantsEligibles = $input['etudiantsEligibles'] ?? null;
+    } else {
+        $idUE = isset($_GET['idUE']) ? (int)$_GET['idUE'] : null;
+        $minMoy = isset($_GET['minMoyenne']) ? (float)$_GET['minMoyenne'] : 8.0;
+        $strategy = $_GET['strategy'] ?? 'neutral';
+        $lockGE10 = filter_var($_GET['lock_ge10'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        $displayStep = isset($_GET['rounding_step']) ? (float)$_GET['rounding_step'] : 0.01;
+        $etudiantsEligibles = null;
+    }
 
-            if (!$idUE) {
-                http_response_code(400);
-                echo json_encode([
-                    "success" => false,
-                    "message" => "ID UE manquant"
-                ]);
-                break;
-            }
+    if (!$idUE) {
+        http_response_code(400);
+        echo json_encode([
+            "success" => false,
+            "message" => "ID UE manquant"
+        ]);
+        break;
+    }
 
-            try {
-                if ($etudiantsEligibles && is_array($etudiantsEligibles)) {
-                    $data = appliquerRepechageSurEtudiants(
-                        $etudiantsEligibles,
-                        $minMoy,
-                        $strategy,
-                        $lockGE10,
-                        $displayStep
-                    );
-                } else {
-                    $data = appliquerRepechageUE(
-                        $pdo,
-                        $idUE,
-                        $minMoy,
-                        $strategy,
-                        $lockGE10,
-                        $displayStep
-                    );
-                }
+    try {
+        if ($etudiantsEligibles && is_array($etudiantsEligibles)) {
+            $data = appliquerRepechageSurEtudiants(
+                $etudiantsEligibles,
+                $minMoy,
+                $strategy,
+                $lockGE10,
+                $displayStep
+            );
+        } else {
+            $data = appliquerRepechageUE(
+                $pdo,
+                $idUE,
+                $minMoy,
+                $strategy,
+                $lockGE10,
+                $displayStep
+            );
+        }
 
-                header('Content-Type: application/json');
-                echo json_encode([
-                    "success" => true,
-                    "simulations" => $data,
-                    "params" => [
-                        "idUE" => $idUE,
-                        "minMoyenne" => $minMoy,
-                        "strategy" => $strategy,
-                        "lock_ge10" => $lockGE10,
-                        "rounding_step" => $displayStep
-                    ]
-                ]);
-            } catch (Exception $e) {
-                http_response_code(500);
-                echo json_encode([
-                    "success" => false,
-                    "message" => $e->getMessage()
-                ]);
-            }
-            break;
+        header('Content-Type: application/json');
+        echo json_encode([
+            "success" => true,
+            "simulations" => $data,
+            "params" => [
+                "idUE" => $idUE,
+                "minMoyenne" => $minMoy,
+                "strategy" => $strategy,
+                "lock_ge10" => $lockGE10,
+                "rounding_step" => $displayStep
+            ]
+        ]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode([
+            "success" => false,
+            "message" => $e->getMessage()
+        ]);
+    }
+    break;
         case 'verifierEvaluationsUE':
             $idUE = $_GET['idUE'] ?? null;
             $session_id = $_GET['session_id'] ?? 1;
@@ -676,87 +676,87 @@ if ($postAction) {
 /**
  * Appliquer le repêchage sur une liste d'étudiants spécifique
  */
-// function appliquerRepechageSurEtudiants($etudiantsEligibles, $minMoyenne, $strategy = 'neutral', $lockGE10 = false, $displayStep = 0.01)
-// {
-//     $targetAvg = 10.0;
-//     $maxNote = 20.0;
-//     $simulations = [];
+function appliquerRepechageSurEtudiants($etudiantsEligibles, $minMoyenne, $strategy = 'neutral', $lockGE10 = false, $displayStep = 0.01)
+{
+    $targetAvg = 10.0;
+    $maxNote = 20.0;
+    $simulations = [];
 
-//     foreach ($etudiantsEligibles as $etudiantData) {
-//         if (!isset($etudiantData['ec']) || !is_array($etudiantData['ec']) || count($etudiantData['ec']) === 0) {
-//             continue;
-//         }
+    foreach ($etudiantsEligibles as $etudiantData) {
+        if (!isset($etudiantData['ec']) || !is_array($etudiantData['ec']) || count($etudiantData['ec']) === 0) {
+            continue;
+        }
 
-//         $stats = $etudiantData['stats'] ?? [];
-//         $moyenneCalculable = (bool)($stats['moyenne_calculable'] ?? true);
-//         $estRepechable = (bool)($stats['est_repechable'] ?? false);
+        $stats = $etudiantData['stats'] ?? [];
+        $moyenneCalculable = (bool)($stats['moyenne_calculable'] ?? true);
+        $estRepechable = (bool)($stats['est_repechable'] ?? false);
 
-//         $totalPoints = 0;
-//         $totalCoefs = 0;
+        $totalPoints = 0;
+        $totalCoefs = 0;
 
-//         foreach ($etudiantData['ec'] as $ec) {
-//             $note = (float)($ec['note'] ?? $ec['note_finale_ec'] ?? 0);
-//             $coef = (float)($ec['coef'] ?? $ec['coef_ec'] ?? 1);
+        foreach ($etudiantData['ec'] as $ec) {
+            $note = (float)($ec['note'] ?? $ec['note_finale_ec'] ?? 0);
+            $coef = (float)($ec['coef'] ?? $ec['coef_ec'] ?? 1);
 
-//             $totalPoints += ($note * $coef);
-//             $totalCoefs += $coef;
-//         }
+            $totalPoints += ($note * $coef);
+            $totalCoefs += $coef;
+        }
 
-//         $avgBefore = $totalCoefs > 0 ? ($totalPoints / $totalCoefs) : 0;
+        $avgBefore = $totalCoefs > 0 ? ($totalPoints / $totalCoefs) : 0;
 
-//         if (
-//             !$moyenneCalculable ||
-//             !$estRepechable ||
-//             $avgBefore < $minMoyenne ||
-//             $avgBefore >= $targetAvg
-//         ) {
-//             continue;
-//         }
+        if (
+            !$moyenneCalculable ||
+            !$estRepechable ||
+            $avgBefore < $minMoyenne ||
+            $avgBefore >= $targetAvg
+        ) {
+            continue;
+        }
 
-//         $ecModifies = [];
+        $ecModifies = [];
 
-//         foreach ($etudiantData['ec'] as $ec) {
-//             $noteCourante = (float)($ec['note'] ?? $ec['note_finale_ec'] ?? 0);
-//             $coefCourant = (float)($ec['coef'] ?? $ec['coef_ec'] ?? 1);
+        foreach ($etudiantData['ec'] as $ec) {
+            $noteCourante = (float)($ec['note'] ?? $ec['note_finale_ec'] ?? 0);
+            $coefCourant = (float)($ec['coef'] ?? $ec['coef_ec'] ?? 1);
 
-//             $ecModifies[] = [
-//                 "id" => $ec["id"],
-//                 "name" => $ec["name"] ?? '',
-//                 "coef" => $coefCourant,
-//                 "note" => $noteCourante,
-//                 "note_initial" => $noteCourante,
-//                 "note_devoir" => $ec["note_devoir"] ?? null,
-//                 "note_examen" => $ec["note_examen"] ?? null,
-//                 "devoirs" => $ec["devoirs"] ?? [],
-//                 "examens" => $ec["examens"] ?? []
-//             ];
-//         }
+            $ecModifies[] = [
+                "id" => $ec["id"],
+                "name" => $ec["name"] ?? '',
+                "coef" => $coefCourant,
+                "note" => $noteCourante,
+                "note_initial" => $noteCourante,
+                "note_devoir" => $ec["note_devoir"] ?? null,
+                "note_examen" => $ec["note_examen"] ?? null,
+                "devoirs" => $ec["devoirs"] ?? [],
+                "examens" => $ec["examens"] ?? []
+            ];
+        }
 
-//         $sumC = sumCoef($ecModifies);
-//         $pointsMissing = ($targetAvg - $avgBefore) * $sumC;
+        $sumC = sumCoef($ecModifies);
+        $pointsMissing = ($targetAvg - $avgBefore) * $sumC;
 
-//         redistributeContinuous($ecModifies, $pointsMissing, $strategy, $lockGE10, $maxNote);
-//         $fix = forceExactTargetByResidual($ecModifies, $targetAvg, $lockGE10, $maxNote);
+        redistributeContinuous($ecModifies, $pointsMissing, $strategy, $lockGE10, $maxNote);
+        $fix = forceExactTargetByResidual($ecModifies, $targetAvg, $lockGE10, $maxNote);
 
-//         foreach ($ecModifies as &$e) {
-//             $e["note_affichage"] = number_format(displayRound($e["note"], $displayStep), 2);
-//             $e["point_jury"] = round($e["note"] - $e["note_initial"], 2);
-//             $e["nouvelle_note_finale"] = round($e["note"], 2);
-//         }
-//         unset($e);
+        foreach ($ecModifies as &$e) {
+            $e["note_affichage"] = number_format(displayRound($e["note"], $displayStep), 2);
+            $e["point_jury"] = round($e["note"] - $e["note_initial"], 2);
+            $e["nouvelle_note_finale"] = round($e["note"], 2);
+        }
+        unset($e);
 
-//         $simulations[] = [
-//             "matricule" => $etudiantData['matricule'],
-//             "nom" => trim(($etudiantData['prenom'] ?? '') . ' ' . ($etudiantData['nom'] ?? '')),
-//             "moyenne_avant" => round($avgBefore, 4),
-//             "moyenne_apres" => round(weightedAverage($ecModifies), 4),
-//             "info_fix" => $fix['reason'] ?? null,
-//             "details_ec" => $ecModifies
-//         ];
-//     }
+        $simulations[] = [
+            "matricule" => $etudiantData['matricule'],
+            "nom" => trim(($etudiantData['prenom'] ?? '') . ' ' . ($etudiantData['nom'] ?? '')),
+            "moyenne_avant" => round($avgBefore, 4),
+            "moyenne_apres" => round(weightedAverage($ecModifies), 4),
+            "info_fix" => $fix['reason'] ?? null,
+            "details_ec" => $ecModifies
+        ];
+    }
 
-//     return $simulations;
-// }
+    return $simulations;
+}
 // Fonction pour récupérer les UE et leurs inscriptions pédagogiques
 function getUEsWithInscriptions($pdo)
 {
@@ -1237,7 +1237,7 @@ function getEtudiantByUE($pdo, $idUE, $session_id = 1)
 
         if (!$etudiant["moyenne_calculable"]) {
             $raisonNonRepechable = "moyenne_non_calculable";
-        } elseif (!$aTousExamens) {
+        } elseif ($aExamenNonCompose) {
             $raisonNonRepechable = "non_compose_examen";
         }
         //  elseif ($etudiant["moyenne_ue"] < 7) {
@@ -1256,10 +1256,10 @@ function getEtudiantByUE($pdo, $idUE, $session_id = 1)
             "calcul_detail" => implode(" + ", $calculDetailUE),
             "moyenne_calculable" => $etudiant["moyenne_calculable"],
             "est_repechable" => (
-                ($etudiant["moyenne_calculable"]
-                    && $etudiant["moyenne_ue"] < 10
-                    // && $etudiant["moyenne_ue"] >= 7
-                    && !$aExamenNonCompose)
+                $etudiant["moyenne_calculable"]
+                && $etudiant["moyenne_ue"] < 10
+                // && $etudiant["moyenne_ue"] >= 7
+                && !$aExamenNonCompose  // ← nouvelle condition
             ),
             "non_repechable_raison" => $raisonNonRepechable
         ];
@@ -1413,100 +1413,6 @@ function displayRound($x, $step)
 /**
  * Logique de simulation avec prise en compte du verrouillage et de l'arrondi
  */
-function appliquerRepechageSurEtudiants($etudiantsEligibles, $minMoyenne, $strategy = 'neutral', $lockGE10 = false, $displayStep = 0.01)
-{
-    $targetAvg = 10.0;
-    $maxNote = 20.0;
-    $simulations = [];
-
-    foreach ($etudiantsEligibles as $etudiantData) {
-        if (!isset($etudiantData['ec']) || !is_array($etudiantData['ec']) || count($etudiantData['ec']) === 0) {
-            continue;
-        }
-
-        $totalPoints = 0;
-        $totalCoefs = 0;
-        $aExamenNonCompose = false;
-        $moyenneCalculable = true;
-
-        foreach ($etudiantData['ec'] as $ec) {
-            $note = (float)($ec['note'] ?? $ec['note_finale_ec'] ?? 0);
-            $coef = (float)($ec['coef'] ?? $ec['coef_ec'] ?? 1);
-
-            $totalPoints += ($note * $coef);
-            $totalCoefs += $coef;
-
-           if (($ec['calcul_mode'] ?? '') === 'examen_non_compose') {
-                $aExamenNonCompose = true;
-                break;
-            }
-            if (
-                array_key_exists('note_finale_ec', $ec)
-                && $ec['note_finale_ec'] === null
-                && ($ec['calcul_mode'] ?? '') !== 'examen_non_compose'
-            ) {
-                $moyenneCalculable = false;
-            }
-        }
-
-        $avgBefore = $totalCoefs > 0 ? ($totalPoints / $totalCoefs) : 0;
-
-        $estRepechable = (
-            $moyenneCalculable
-            && $avgBefore >= $minMoyenne
-            && $avgBefore < $targetAvg
-            && !$aExamenNonCompose
-        );
-
-        if (!$estRepechable) {
-            continue;
-        }
-
-        $ecModifies = [];
-
-        foreach ($etudiantData['ec'] as $ec) {
-            $noteCourante = (float)($ec['note'] ?? $ec['note_finale_ec'] ?? 0);
-            $coefCourant = (float)($ec['coef'] ?? $ec['coef_ec'] ?? 1);
-
-            $ecModifies[] = [
-                "id" => $ec["id"],
-                "name" => $ec["name"] ?? '',
-                "coef" => $coefCourant,
-                "note" => $noteCourante,
-                "note_initial" => $noteCourante,
-                "note_devoir" => $ec["note_devoir"] ?? null,
-                "note_examen" => $ec["note_examen"] ?? null,
-                "devoirs" => $ec["devoirs"] ?? [],
-                "examens" => $ec["examens"] ?? []
-            ];
-        }
-
-        $sumC = sumCoef($ecModifies);
-        $pointsMissing = ($targetAvg - $avgBefore) * $sumC;
-
-        redistributeContinuous($ecModifies, $pointsMissing, $strategy, $lockGE10, $maxNote);
-        $fix = forceExactTargetByResidual($ecModifies, $targetAvg, $lockGE10, $maxNote);
-
-        foreach ($ecModifies as &$e) {
-            $e["note_affichage"] = number_format(displayRound($e["note"], $displayStep), 2);
-            $e["point_jury"] = round($e["note"] - $e["note_initial"], 2);
-            $e["nouvelle_note_finale"] = round($e["note"], 2);
-        }
-        unset($e);
-
-        $simulations[] = [
-            "matricule" => $etudiantData['matricule'],
-            "nom" => trim(($etudiantData['prenom'] ?? '') . ' ' . ($etudiantData['nom'] ?? '')),
-            "moyenne_avant" => round($avgBefore, 4),
-            "moyenne_apres" => round(weightedAverage($ecModifies), 4),
-            "info_fix" => $fix['reason'] ?? null,
-            "details_ec" => $ecModifies,
-            "aExamenNonCompose" => $aExamenNonCompose
-        ];
-    }
-
-    return $simulations;
-}
 function appliquerRepechageUE($pdo, $idUE, $minMoyenne, $strategy = 'neutral', $lockGE10 = false, $displayStep = 0.01)
 {
     $etudiantsBruts = getEtudiantByUE($pdo, $idUE);
@@ -1516,24 +1422,14 @@ function appliquerRepechageUE($pdo, $idUE, $minMoyenne, $strategy = 'neutral', $
 
     foreach ($etudiantsBruts as $etudiant) {
         $avgBefore = (float)($etudiant['moyenne_ue'] ?? 0);
-        $moyenneCalculable = (bool)($etudiant['moyenne_calculable'] ?? false);
+        $stats = $etudiant['stats'] ?? [];
+        $estRepechable = (bool)($stats['est_repechable'] ?? false);
 
-        $aExamenNonCompose = false;
-        foreach (($etudiant['ec'] ?? []) as $ec) {
-            if ($ec['examen_non_compose']) {
-                $aExamenNonCompose = true;
-                break;
-            }
-        }
-
-        $estRepechable = (
-            $moyenneCalculable
-            && $avgBefore >= $minMoyenne
-            && $avgBefore < $targetAvg
-            && !$aExamenNonCompose
-        );
-
-        if (!$estRepechable) {
+        if (
+            !$estRepechable ||
+            $avgBefore < $minMoyenne ||
+            $avgBefore >= $targetAvg
+        ) {
             continue;
         }
 
@@ -1583,8 +1479,7 @@ function appliquerRepechageUE($pdo, $idUE, $minMoyenne, $strategy = 'neutral', $
             "moyenne_avant" => round($avgBefore, 4),
             "moyenne_apres" => round(weightedAverage($ecModifies), 4),
             "info_fix" => $fix['reason'] ?? null,
-            "details_ec" => $ecModifies,
-            "aExamenNonCompose" => $aExamenNonCompose
+            "details_ec" => $ecModifies
         ];
     }
 
@@ -1728,9 +1623,7 @@ function verifierCompletudeEvaluationsUE($pdo, $idUE, $session_id = 1)
                 ];
                 continue;
             }
-            // Après la vérification de note_examen (étape 2), ajouter :
-
-            // 2bis. Vérifier qu'il n'y a pas plusieurs notes d'examen
+			// 2bis. Vérifier qu'il n'y a pas plusieurs notes d'examen
             $nbExamens = count($ecData['examens'] ?? []);
             if ($nbExamens > 1) {
                 $anomalies[] = [
@@ -1961,22 +1854,22 @@ function enregistrerRepêchage($pdo, $data)
 
         // 5. Historisation + insertion pour chaque EC
         $sqlAnnuler = "UPDATE repechage_historique 
-                       SET statut = 'annulé'
+                       SET statut = 'annule'
                        WHERE idInscription = :idInscription 
                        AND idUE            = :idUE 
                        AND idEC            = :idEC 
                        AND idSession       = :idSession
-                       AND statut          = 'appliqué'";
+                       AND statut          = 'applique'";
         $stmtAnnuler = $pdo->prepare($sqlAnnuler);
 
         $sqlInsert = "INSERT INTO repechage_historique
              (idInscription, idUE, idEC, idSession, idMoyenneUE, idRepechage,
               note_initial, note_final, point_jury, coef, credit,
-              idUtilisateur, statut, commentaire, date_repêchage)
+              idUtilisateur, statut, commentaire, date_repechage)
              VALUES 
              (:idInscription, :idUE, :idEC, :idSession, :idMoyenneUE, :idRepechage,
               :note_initial, :note_final, :point_jury, :coef, :credit,
-              :idUtilisateur, 'appliqué', :commentaire, NOW())";
+              :idUtilisateur, 'applique', :commentaire, NOW())";
         $stmtInsert = $pdo->prepare($sqlInsert);
 
         $nbEcRepêchés = 0;
@@ -1992,7 +1885,7 @@ function enregistrerRepêchage($pdo, $data)
             if (in_array($key, $ecsTraites)) continue;
             $ecsTraites[] = $key;
 
-            // // Annuler l'enregistrement appliqué précédent s'il existe
+            // // Annuler l'enregistrement applique précédent s'il existe
             // $stmtAnnuler->execute([
             //     ':idInscription' => $data['idInscription'],
             //     ':idUE'          => $data['idUE'],
@@ -2000,7 +1893,7 @@ function enregistrerRepêchage($pdo, $data)
             //     ':idSession'     => $data['idSession']
             // ]);
 
-            // Toujours insérer un nouvel enregistrement 'appliqué'
+            // Toujours insérer un nouvel enregistrement 'applique'
             $stmtInsert->execute([
                 ':idInscription' => $data['idInscription'],
                 ':idUE'          => $data['idUE'],
@@ -2067,14 +1960,16 @@ function préparerDonnéesRepêchage($pdo, $simulation, $idUE, $idSession, $seui
     foreach ($simulation['details_ec'] as $ec) {
         $pointJury = $ec['note_affichage'] - $ec['note_initial'];
 
-        $ecRepêchés[] = [
-            'idEC' => $ec['id'],
-            'note_initial' => $ec['note_initial'],
-            'note_final' => $ec['note_affichage'],
-            'point_jury' => $pointJury,
-            'coef' => $ec['coef'],
-            'credit' => $ec['note_affichage'] >= 10 ? ($ec['coef'] * 2) : 0 // Exemple: 2 crédits par coef si ≥ 10
-        ];
+        if ($pointJury > 0) { // Seulement les EC qui ont été augmentés
+            $ecRepêchés[] = [
+                'idEC' => $ec['id'],
+                'note_initial' => $ec['note_initial'],
+                'note_final' => $ec['note_affichage'],
+                'point_jury' => $pointJury,
+                'coef' => $ec['coef'],
+                'credit' => $ec['note_affichage'] >= 10 ? ($ec['coef'] * 2) : 0 // Exemple: 2 crédits par coef si ≥ 10
+            ];
+        }
     }
 
     return [
@@ -2159,7 +2054,7 @@ function syncVueEtudiantsParUE($pdo, $idUE, $existRepechage = false, $gererTrans
                 idEC, code_ec, nom_ec, coefficient_ec, credit_ec,
                 note_initial, idSession, idRepechage,
                 note_final, point_jury, source_note,
-                date_evaluation, `date_repêchage`, date_maj, sync_version, sync_at,
+                date_evaluation, `date_repechage`, date_maj, sync_version, sync_at,
                 idUser_note, `idUser_repêchage`
             ) VALUES (
                 :matricule, :prenom, :nom, :filiere, :niveau, :option_etudiant,
@@ -2218,9 +2113,9 @@ function syncVueEtudiantsParUE($pdo, $idUE, $existRepechage = false, $gererTrans
         $rephDateMap = [];
         if ($idRepechageActif) {
             $stmtDates = $pdo->prepare("
-                SELECT idInscription, idEC, date_repêchage, idUtilisateur
+                SELECT idInscription, idEC, date_repechage, idUtilisateur
                 FROM repechage_historique
-                WHERE idUE = :idUE AND idSession = 1 AND statut = 'appliqué'
+                WHERE idUE = :idUE AND idSession = 1 AND statut = 'applique'
             ");
             $stmtDates->execute([':idUE' => $idUE]);
             foreach ($stmtDates->fetchAll(PDO::FETCH_ASSOC) as $row) {
@@ -2268,7 +2163,7 @@ function syncVueEtudiantsParUE($pdo, $idUE, $existRepechage = false, $gererTrans
                     ':point_jury'      => $ec['point_jury']        ?? 0,
                     ':source_note'     => $ec['source_note']       ?? 'pedagogie',
                     ':date_evaluation' => null,
-                    ':date_repechage'  => $estRepeche ? ($rephInfo['date_repêchage'] ?? null) : null,
+                    ':date_repechage'  => $estRepeche ? ($rephInfo['date_repechage'] ?? null) : null,
                     ':sync_version'    => $nextVersion,
                     ':idUser_note'     => null,
                     ':idUser_repechage' => $estRepeche ? ($rephInfo['idUtilisateur'] ?? null) : null,
@@ -2315,7 +2210,7 @@ function getLastVersionOfNote($pdo, $idUE, $session_id = 1)
     $stmtRep->execute([':idUE' => $idUE, ':idAnnee' => $idAnnee]);
     $idRepechageActif = $stmtRep->fetchColumn() ?: null;
 
-    // 0c. Récupérer les étudiants repêchés (ceux qui ont un enregistrement 'appliqué')
+    // 0c. Récupérer les étudiants repêchés (ceux qui ont un enregistrement 'applique')
     $etudiantsRepeches = []; // [idInscription => [idEC => donnees_reph]]
 
     if ($idRepechageActif) {
@@ -2327,7 +2222,7 @@ function getLastVersionOfNote($pdo, $idUE, $session_id = 1)
                 reph.note_final,
                 reph.point_jury,
                 reph.coef,
-                reph.date_repêchage,
+                reph.date_repechage,
                 reph.idUtilisateur,
                 ec.nom          AS nomEc,
                 ec.coefficient  AS coef_ec,
@@ -2336,7 +2231,7 @@ function getLastVersionOfNote($pdo, $idUE, $session_id = 1)
             JOIN ec ON ec.id = reph.idEC
             WHERE reph.idUE     = :idUE
               AND reph.idSession = :session_id
-              AND reph.statut   = 'appliqué'
+              AND reph.statut   = 'applique'
         ");
         $stmtReph->execute([':idUE' => $idUE, ':session_id' => $session_id]);
 
@@ -2377,7 +2272,7 @@ function getLastVersionOfNote($pdo, $idUE, $session_id = 1)
             ec.nom              AS nomEc,
             ec.coefficient      AS coef_ec,
             pn.note, 
-            bn.nature,
+            pn.nature,
             pn.non_compose,
             pn.justifier,
             CASE 
@@ -2390,13 +2285,13 @@ function getLastVersionOfNote($pdo, $idUE, $session_id = 1)
         JOIN scolarite_inscription si ON sip.idInscription = si.id
         JOIN pedagogie_notes pn ON sip.id = pn.idInscription
         JOIN ec ON ec.id = pn.idEc
-        JOIN bordereau_note bn ON pn.idDevoir = bn.idDevoir
+		JOIN bordereau_note bn ON pn.idDevoir = bn.idDevoir
         WHERE pn.idUe       = :idUE 
           AND sip.statut    = 1 
           AND bn.session_id = :session_id
           AND pn.idAnnee    = :idAnnee
         GROUP BY se.matricule, ec.id, pn.idDevoir
-        ORDER BY se.matricule, ec.id, pn.nature
+        ORDER BY se.matricule, ec.id, bn.idNature
     ";
 
     $stmt = $pdo->prepare($sql);
@@ -2639,7 +2534,7 @@ function getLastVersionOfNote($pdo, $idUE, $session_id = 1)
 
         $aExamenNonCompose = false;
         foreach ($etudiant["ec"] as $ec) {
-            if ($ec["examen_non_compose"]) {
+            if ($ec["examen_non_compose"] ?? false) {
                 $aExamenNonCompose = true;
                 break;
             }
@@ -2702,7 +2597,7 @@ function getNotesFromPedagogie($pdo, $idUE, $session_id = 1)
             ec.nom              AS nomEc,
             ec.coefficient      AS coef_ec,
             pn.note, 
-            bn.nature,
+            pn.nature,
             pn.non_compose,
             pn.justifier,
             CASE 
@@ -2715,10 +2610,10 @@ function getNotesFromPedagogie($pdo, $idUE, $session_id = 1)
         JOIN scolarite_inscription si ON sip.idInscription = si.id
         JOIN pedagogie_notes pn ON sip.id = pn.idInscription
         JOIN ec ON ec.id = pn.idEc
-        JOIN bordereau_note bn ON pn.idDevoir = bn.idDevoir
+		JOIN bordereau_note bn ON pn.idDevoir = bn.idDevoir
         WHERE pn.idUe       = :idUE 
           AND sip.statut    = 1 
-          AND pn.session_id = :session_id
+          AND bn.session_id = :session_id
           AND pn.idAnnee    = :idAnnee
         GROUP BY se.matricule, ec.id, pn.idDevoir
         ORDER BY se.matricule, ec.id, bn.idNature
@@ -2893,7 +2788,7 @@ function getNotesFromPedagogie($pdo, $idUE, $session_id = 1)
 
         $aExamenNonCompose = false;
         foreach ($etudiant["ec"] as $ec) {
-            if ($ec["examen_non_compose"]) {
+            if ($ec["examen_non_compose"] ?? false) {
                 $aExamenNonCompose = true;
                 break;
             }

@@ -118,6 +118,57 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
                                         </div>
                                     </div>
                                 <?php } ?>
+                                <div class="menu-item">
+                            <div class="menu-link">
+                                <span class="menu-icon"><span class="svg-icon svg-icon-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <path d="M21 7H3C2.4 7 2 6.6 2 6V4C2 3.4 2.4 3 3 3H21C21.6 3 22 3.4 22 4V6C22 6.6 21.6 7 21 7Z" fill="black"/>
+                                        <path opacity="0.3" d="M21 14H3C2.4 14 2 13.6 2 13V11C2 10.4 2.4 10 3 10H21C21.6 10 22 10.4 22 11V13C22 13.6 21.6 14 21 14ZM22 20V18C22 17.4 21.6 17 21 17H3C2.4 17 2 17.4 2 18V20C2 20.6 2.4 21 3 21H21C21.6 21 22 20.6 22 20Z" fill="black"/>
+                                    </svg>
+                                </span></span>
+                                <a class="menu-title" href="http://localhost/pedagogie/deliberation/deliberationUe.php">Délibération par UE</a>
+                            </div>
+                        </div>
+
+                        <div class="menu-item">
+                            <div class="menu-link">
+                                <span class="menu-icon"><span class="svg-icon svg-icon-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <path opacity="0.3" d="M3.5 21L20.5 21C21.3 21 22 20.3 22 19.5L22 8.5C22 7.7 21.3 7 20.5 7L10 7L7.4 4.4C7.2 4.2 6.8 4 6.4 4L3.5 4C2.7 4 2 4.7 2 5.5L2 19.5C2 20.3 2.7 21 3.5 21Z" fill="black"/>
+                                    </svg>
+                                </span></span>
+                                <a class="menu-title" href="http://localhost/pedagogie/deliberation/deliberationRegroupee.php">Délibération Regroupée</a>
+                            </div>
+                        </div>
+
+                        <div class="menu-item">
+                            <div class="menu-link">
+                                <span class="menu-icon"><span class="svg-icon svg-icon-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+                                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                            <polygon points="0 0 24 0 24 24 0 24"/>
+                                            <path d="M5.85714286,2 L13.7364114,2 C14.0910962,2 14.4343066,2.12568431 14.7051108,2.35473959 L19.4686994,6.3839416 C19.8056532,6.66894833 20,7.08787823 20,7.52920201 L20,20.0833333 C20,21.8738751 19.9795521,22 18.1428571,22 L5.85714286,22 C4.02044787,22 4,21.8738751 4,20.0833333 L4,3.91666667 C4,2.12612489 4.02044787,2 5.85714286,2 Z" fill="#000000" fill-rule="nonzero" opacity="0.3"/>
+                                            <rect fill="#000000" x="6" y="11" width="9" height="2" rx="1"/>
+                                            <rect fill="#000000" x="6" y="15" width="5" height="2" rx="1"/>
+                                            <rect fill="#000000" x="6" y="7" width="3" height="2" rx="1"/>
+                                        </g>
+                                    </svg>
+                                </span></span>
+                                <a class="menu-title" href="http://localhost/pedagogie/deliberation/PV/UE/pvParUE.php">PV par UE</a>
+                            </div>
+                        </div>
+
+                        <div class="menu-item">
+                            <div class="menu-link">
+                                <span class="menu-icon"><span class="svg-icon svg-icon-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <path d="M3 3h18v4H3zM3 9h18v4H3zM3 15h18v4H3z" fill="black" opacity="0.3"/>
+                                        <rect fill="black" x="3" y="3" width="18" height="2" rx="1"/>
+                                    </svg>
+                                </span></span>
+                                <a class="menu-title" href="http://localhost/pedagogie/deliberation/PV/semestre/pvParSemestre.php">PV par Semestre</a>
+                            </div>
+                        </div>
                                 <div class="menu-link " type="button" role="tab">
                                     <span class="menu-icon">
                                         <span class="svg-icon svg-icon-2">

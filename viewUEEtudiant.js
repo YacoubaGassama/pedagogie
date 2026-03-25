@@ -85,65 +85,140 @@ function initDataTableUEEtudiant() {
         })
         .catch(error => console.error('Error:', error));
 }
-
 function updateFilters(rows) {
     $('#filterContainer').empty();
-    
-    // Parse cycle, niveau, and specialite from nomMaquette
+
     const parseNomMaquette = (nom) => {
-        const match = nom.match(/^(\w+)\s+(\d+)\s+(.+?)\s+(\d{4})$/);
-        if (match) {
-            return { 
-                cycle: match[1], 
-                niveau: match[2], 
-                specialite: match[3],
-                full: nom 
-            };
-        }
-        return { cycle: nom, niveau: '', specialite: '', full: nom };
+        const cycleMatch = nom.match(/^(\w+)/);
+        const niveauMatch = nom.match(/\b(\d+)(?:er|ème|e)?\s+(cycle\s+)?/i);
+        
+        const cycle = cycleMatch ? cycleMatch[1] : nom;
+        const niveau = niveauMatch ? niveauMatch[1] : '';
+        const specialite = nom
+            .replace(/^\w+\s+/, '')
+            .replace(/\d+(?:er|ème|e)?\s*(?:cycle\s*)?/i, '')
+            .replace(/\s*\d{4}$/, '')
+            .trim();
+
+        return { cycle, niveau, specialite, full: nom };
     };
-    
+
     const parsedRows = rows.map(row => ({
         ...row,
         parsed: parseNomMaquette(row.nomMaquette)
     }));
-    
-    const uniqueCycles = [...new Set(parsedRows.map(row => row.parsed.cycle))];
-    const uniqueNiveaux = [...new Set(parsedRows.map(row => row.parsed.niveau).filter(n => n))];
-    const uniqueSpecialites = [...new Set(parsedRows.map(row => row.parsed.specialite).filter(s => s))];
-    
+
+    const uniqueCycles    = [...new Set(parsedRows.map(r => r.parsed.cycle).filter(Boolean))];
+    const uniqueSemestres = [...new Set(parsedRows.map(r => r.numSemestre).filter(s => s != null))].sort((a, b) => Number(a) - Number(b));
+
+    // --- Fonctions pour reconstruire les options en cascade ---
+    const getNiveauxByCycle = (cycle) => {
+        const filtered = cycle ? parsedRows.filter(r => r.parsed.cycle === cycle) : parsedRows;
+        return [...new Set(filtered.map(r => r.parsed.niveau).filter(Boolean))].sort((a, b) => Number(a) - Number(b));
+    };
+
+    const getSpecialitesByCycleNiveau = (cycle, niveau) => {
+        let filtered = parsedRows;
+        if (cycle)  filtered = filtered.filter(r => r.parsed.cycle  === cycle);
+        if (niveau) filtered = filtered.filter(r => r.parsed.niveau === niveau);
+        return [...new Set(filtered.map(r => r.parsed.specialite).filter(Boolean))].sort();
+    };
+
+    const rebuildNiveaux = (cycle) => {
+        const current = $('#filterNiveau').val();
+        $('#filterNiveau').empty().append('<option value="">Tous les niveaux</option>');
+        getNiveauxByCycle(cycle).forEach(niveau => {
+            $('#filterNiveau').append(`<option value="${niveau}">${cycle ? cycle + ' ' + niveau : 'Niveau ' + niveau}</option>`);
+        });
+        // Restaure la sélection si elle est encore valide
+        if (current) $('#filterNiveau').val(current);
+    };
+
+    const rebuildSpecialites = (cycle, niveau) => {
+        const current = $('#filterSpecialite').val();
+        $('#filterSpecialite').empty().append('<option value="">Toutes les spécialités</option>');
+        getSpecialitesByCycleNiveau(cycle, niveau).forEach(specialite => {
+            $('#filterSpecialite').append(`<option value="${specialite}">${specialite}</option>`);
+        });
+        // Restaure la sélection si elle est encore valide
+        if (current) $('#filterSpecialite').val(current);
+    };
+
+    // --- Construction initiale des selects ---
     const filterCycle = $('<select id="filterCycle" class="form-control m-2"><option value="">Tous les cycles</option></select>');
-    uniqueCycles.forEach(cycle => {
-        const nomNettoye = cycle.replace(/\s+\d{4}$/, "").trim();
-        
-        filterCycle.append(`<option value="${nomNettoye}">${nomNettoye}</option>`);
-    });
-    
+    uniqueCycles.forEach(cycle => filterCycle.append(`<option value="${cycle}">${cycle}</option>`));
+
     const filterNiveau = $('<select id="filterNiveau" class="form-control m-2"><option value="">Tous les niveaux</option></select>');
-    uniqueNiveaux.forEach(niveau => {
-        filterNiveau.append(`<option value="${niveau}">${niveau}</option>`);
-    });
-    
+    getNiveauxByCycle('').forEach(niveau => filterNiveau.append(`<option value="${niveau}">Niveau ${niveau}</option>`));
+
     const filterSpecialite = $('<select id="filterSpecialite" class="form-control m-2"><option value="">Toutes les spécialités</option></select>');
-    uniqueSpecialites.forEach(specialite => {
-        filterSpecialite.append(`<option value="${specialite}">${specialite}</option>`);
-    });
-    const filterLabel = $(`<label class="form-label me-2"><!--begin::Svg Icon | path: assets/media/icons/duotune/general/gen031.svg-->
-<span class="svg-icon svg-icon-muted svg-icon-2hx"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-<path d="M19.0759 3H4.72777C3.95892 3 3.47768 3.83148 3.86067 4.49814L8.56967 12.6949C9.17923 13.7559 9.5 14.9582 9.5 16.1819V19.5072C9.5 20.2189 10.2223 20.7028 10.8805 20.432L13.8805 19.1977C14.2553 19.0435 14.5 18.6783 14.5 18.273V13.8372C14.5 12.8089 14.8171 11.8056 15.408 10.964L19.8943 4.57465C20.3596 3.912 19.8856 3 19.0759 3Z" fill="black"/>
-</svg></span>
-<!--end::Svg Icon--></label>`);
-    $('#filterContainer').append(filterLabel);
-    $('#filterContainer').append(filterCycle).append(filterNiveau).append(filterSpecialite);
-    
-    $('#filterCycle, #filterNiveau, #filterSpecialite').off('change').on('change', function() {
-        const cycleFilter = $('#filterCycle').val();
-        const niveauFilter = $('#filterNiveau').val();
+    getSpecialitesByCycleNiveau('', '').forEach(specialite => filterSpecialite.append(`<option value="${specialite}">${specialite}</option>`));
+
+    const filterSemestre = $('<select id="filterSemestre" class="form-control m-2"><option value="">Tous les semestres</option></select>');
+    uniqueSemestres.forEach(sem => filterSemestre.append(`<option value="${sem}">Semestre ${sem}</option>`));
+
+    const filterLabel = $(`<label class="form-label me-2">
+        <span class="svg-icon svg-icon-muted svg-icon-2hx">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M19.0759 3H4.72777C3.95892 3 3.47768 3.83148 3.86067 4.49814L8.56967 12.6949C9.17923 13.7559 9.5 14.9582 9.5 16.1819V19.5072C9.5 20.2189 10.2223 20.7028 10.8805 20.432L13.8805 19.1977C14.2553 19.0435 14.5 18.6783 14.5 18.273V13.8372C14.5 12.8089 14.8171 11.8056 15.408 10.964L19.8943 4.57465C20.3596 3.912 19.8856 3 19.0759 3Z" fill="black"/>
+            </svg>
+        </span>
+    </label>`);
+
+    $('#filterContainer').append(filterLabel)
+        .append(filterCycle)
+        .append(filterNiveau)
+        .append(filterSpecialite)
+        .append(filterSemestre);
+
+    // --- Filtre DataTable personnalisé ---
+    $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(fn => fn._id !== 'ueEtudiantFilter');
+
+    const customFilter = function(settings, data, dataIndex) {
+        if (settings.nTable.id !== 'tableUEEtudiant') return true;
+
+        const cycleFilter      = $('#filterCycle').val();
+        const niveauFilter     = $('#filterNiveau').val();
         const specialiteFilter = $('#filterSpecialite').val();
-        const table = $('#tableUEEtudiant').DataTable();
-        
-        const searchTerms = [cycleFilter, niveauFilter, specialiteFilter].filter(v => v).join(' ');
-        table.column(2).search(searchTerms).draw();
+        const semestreFilter   = $('#filterSemestre').val();
+
+        if (!cycleFilter && !niveauFilter && !specialiteFilter && !semestreFilter) return true;
+
+        const rowData = $('#tableUEEtudiant').DataTable().row(dataIndex).data();
+        if (!rowData) return true;
+
+        const parsed = parseNomMaquette(rowData.nomMaquette);
+
+        if (cycleFilter      && parsed.cycle      !== cycleFilter)             return false;
+        if (niveauFilter     && parsed.niveau      !== niveauFilter)            return false;
+        if (specialiteFilter && parsed.specialite  !== specialiteFilter)        return false;
+        if (semestreFilter   && String(rowData.numSemestre) !== semestreFilter) return false;
+
+        return true;
+    };
+    customFilter._id = 'ueEtudiantFilter';
+    $.fn.dataTable.ext.search.push(customFilter);
+
+    // --- Événements en cascade ---
+    $('#filterCycle').off('change').on('change', function() {
+        const cycle = $(this).val();
+        rebuildNiveaux(cycle);         // Rebuild niveau selon cycle
+        rebuildSpecialites(cycle, ''); // Rebuild spécialité selon cycle (niveau réinitialisé)
+        $('#filterNiveau').val('');
+        $('#filterSpecialite').val('');
+        $('#tableUEEtudiant').DataTable().column(2).search('').draw();
+    });
+
+    $('#filterNiveau').off('change').on('change', function() {
+        const cycle  = $('#filterCycle').val();
+        const niveau = $(this).val();
+        rebuildSpecialites(cycle, niveau); // Rebuild spécialité selon cycle + niveau
+        $('#filterSpecialite').val('');
+        $('#tableUEEtudiant').DataTable().column(2).search('').draw();
+    });
+
+    $('#filterSpecialite, #filterSemestre').off('change').on('change', function() {
+        $('#tableUEEtudiant').DataTable().column(2).search('').draw();
     });
 }
 
@@ -180,8 +255,8 @@ function loadEtudiantsUE(idUE, nomUE, idOption, idMaquette, idNiveauFormation) {
                             }},
                             { data: 'nationalite', title: '<strong>Nationalité</strong>' },
                             // { data: 'sexe', title: '<strong>Sexe</strong>' },
-                            { data: 'id', title: '<strong>Actions</strong>', render: function(data, type, row) {
-                                return `<a href="http://localhost/centreCalcul/dist/views/profil1.php?matricule=${row.matricule}&idOpt=${idOption}&idN=${idNiveauFormation}&idMaq=${idMaquette}" class="link link-primary fw-bold">Voir le profil</a>`;
+                            { data: 'idInscriptionPedagogique', title: '<strong>Actions</strong>', render: function(data, type, row) {
+                                return `<a href="http://localhost/centreCalcul/dist/views/profil.php?id=${row.idInscriptionPedagogique}&idOpt=${idOption}&idN=${idNiveauFormation}&idMaq=${row.idMaquette}" class="link link-primary fw-bold">Voir le profil</a>`;
                             }, orderable: false, searchable: false }
                         ],
                         paging: true,

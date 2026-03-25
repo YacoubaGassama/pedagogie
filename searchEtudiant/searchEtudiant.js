@@ -73,7 +73,7 @@ async function searchEtudiant() {
                         <div class="col-md-8">
                             <div class="ps-md-4">
                                 <h2 class="text-uppercase mb-1" style="color: #2c3e50;">${etudiant.prenom + ' ' + etudiant.nom}</h2>
-                                <h4 class="text-muted fw-bold mb-4"></h4>
+                                <h4 class="text-muted fw-bold mb-4">${supprimerAnnee(etudiant.nomMaquette)}</h4>
                                 
                                 <div class="row g-3">
                                     <div class="col-sm-6">
@@ -98,8 +98,8 @@ async function searchEtudiant() {
                                     </div>
                                     <div class="col-sm-12">
                                         <small class="text-muted d-block">Action</small>
-                                        <a href="../../dist/views/profil1.php?matricule=${etudiant.matricule}&idOpt=${etudiant.idOpt}&idN=${etudiant.idN}&idMaq=${etudiant.idMaq}" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-edit me-2"></i>Modifier
+                                        <a href="http://localhost/centreCalcul/dist/views/profil1.php?id=${etudiant.idInscriptionPedagogique}&idOpt=${etudiant.idOpt}&idN=${etudiant.idN}&idMaq=${etudiant.idMaq}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye me-2"></i>voir resultat
                                         </a>
                                     </div>
                                 </div>
@@ -126,7 +126,9 @@ async function searchEtudiant() {
             
         });
 }
-
+function supprimerAnnee(chaine) {
+    return chaine.replace(/\s*\d{4}$/, '');
+}
 async function getUEsByEtudiant(matricule) {
     try {
         const response = await fetch(`searchController.php?action=getUEsByEtudiant&matricule=${encodeURIComponent(matricule)}`);
@@ -164,7 +166,7 @@ async function getUEsByEtudiant(matricule) {
                 <li class="nav-item" role="presentation">
                     <button class="nav-link ${isActive} fw-bold" id="${tabId}-tab" data-bs-toggle="tab" 
                         data-bs-target="#${tabId}" type="button" role="tab">
-                        ${maquette}
+                        ${supprimerAnnee(maquette)}
                     </button>
                 </li>`;
 
@@ -187,7 +189,7 @@ async function getUEsByEtudiant(matricule) {
                                     <tr>
                                         <td><span class="badge bg-primary">${ue.code || 'N/A'}</span></td>
                                         <td class="text-dark fw-bold">${ue.nomUE}</td>
-                                        <td>${parseInt(ue.id_nature) === 1 ? '<span class="badge badge-light-success">Fondamentale</span>' : '<span class="badge badge-light-warning">Complémentaire</span>'}</td>
+                                        <td>${parseInt(ue.id_nature) == 1 ? '<span class="badge badge-light-success">Fondamentale</span>' : '<span class="badge badge-light-warning">Complémentaire</span>'}</td>
                                         <td>
                                             <span class="badge badge-light-info">${ue.credits || 'N/A'}</span>
                                         </td>

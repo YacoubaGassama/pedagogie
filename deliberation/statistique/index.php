@@ -1,29 +1,13 @@
 <?php
 session_start();
-
-// Vérifier si l'utilisateur est connecté
-// if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-//     header('Location: http://localhost/pedagogie/page-connexion');
-//     exit;
-// }
-
-// // Vérifier si le statut de l'utilisateur est "Error"
-// if (isset($_SESSION['current_user'][0]['statut']) && $_SESSION['current_user'][0]['statut'] === 'Error' && $_SESSION['statutUtilisateur'] == 0) {
-//     $msg = $_SESSION['current_user'][0]['Message'];
-//     $_SESSION['alert_message'] = json_encode([
-//         'title' => 'Token expiré',
-//         'text' => "$msg\nVous n'avez pas accés à cette page.",
-//         'icon' => 'error',
-//         'confirmButtonText' => 'OK'
-//     ]);
-//     header('Location: nonAccessPage.php');
-//     exit;
-// }
-
+$strategy = $_POST["strategy"] ?? "neutral";
+$displayStep = floatval($_POST["rounding_step"] ?? 0.01);
+$allowedDisplay = [0.01, 0.25, 0.5, 1.0];
+if (!in_array($displayStep, $allowedDisplay, true)) $displayStep = 0.01;
+$lockGE10 = (isset($_POST["lock_ge10"]) && $_POST["lock_ge10"] == "1");
 $email = $_SESSION['email'] ?? 'example@uahb.sn';
 // $id_structure = $_SESSION['id_structure'];
 $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
-
 ?>
 
 <!DOCTYPE html>
@@ -45,21 +29,56 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
     <link href="http://localhost/pedagogie/dist_assets/css/style.bundle.css" rel="stylesheet" type="text/css" />
     <link href="http://localhost/pedagogie/dist_assets/plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" type="text/css" />
     <!-- <link href="http://localhost/pedagogie/dist_assets/css/style.css" rel="stylesheet" type="text/css" /> -->
-    <link rel="stylesheet" href="maquetteCss">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.0/dist/sweetalert2.min.css">
     <?php
     $tacheId = $_POST['tacheId'] ?? null;
     $url = $_POST['url'] ?? null;
     $autreRessource = $_POST['autreRessource'] ?? null;
     ?>
-    <script>
-        const postData = {
-            tacheId: <?php echo json_encode($tacheId); ?>,
-            url: <?php echo json_encode($url); ?>,
-            autreRessource: <?php echo json_encode($autreRessource); ?>
-        };
-        console.log(postData)
-    </script>
+    <style>
+        /* Styles pour la nouvelle structure */
+        .stat-block {
+            min-height: 120px;
+        }
+
+        .stat-item {
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-right: auto;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .simulation-panel {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .stat-block {
+                min-height: auto;
+            }
+
+            .stat-item {
+                flex-direction: row;
+                text-align: left;
+                gap: 0.5rem;
+            }
+        }
+    </style>
 
 </head>
 
@@ -119,70 +138,70 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
                                     </div>
                                 <?php } ?>
                                 <div class="menu-item">
-                            <div class="menu-link">
-                                <span class="menu-icon"><span class="svg-icon svg-icon-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                        <path d="M21 7H3C2.4 7 2 6.6 2 6V4C2 3.4 2.4 3 3 3H21C21.6 3 22 3.4 22 4V6C22 6.6 21.6 7 21 7Z" fill="black"/>
-                                        <path opacity="0.3" d="M21 14H3C2.4 14 2 13.6 2 13V11C2 10.4 2.4 10 3 10H21C21.6 10 22 10.4 22 11V13C22 13.6 21.6 14 21 14ZM22 20V18C22 17.4 21.6 17 21 17H3C2.4 17 2 17.4 2 18V20C2 20.6 2.4 21 3 21H21C21.6 21 22 20.6 22 20Z" fill="black"/>
-                                    </svg>
-                                </span></span>
-                                <a class="menu-title" href="http://localhost/pedagogie/deliberation/deliberationUe.php">Délibération par UE</a>
-                            </div>
-                        </div>
+                                    <div class="menu-link">
+                                        <span class="menu-icon"><span class="svg-icon svg-icon-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                                    <path d="M21 7H3C2.4 7 2 6.6 2 6V4C2 3.4 2.4 3 3 3H21C21.6 3 22 3.4 22 4V6C22 6.6 21.6 7 21 7Z" fill="black" />
+                                                    <path opacity="0.3" d="M21 14H3C2.4 14 2 13.6 2 13V11C2 10.4 2.4 10 3 10H21C21.6 10 22 10.4 22 11V13C22 13.6 21.6 14 21 14ZM22 20V18C22 17.4 21.6 17 21 17H3C2.4 17 2 17.4 2 18V20C2 20.6 2.4 21 3 21H21C21.6 21 22 20.6 22 20Z" fill="black" />
+                                                </svg>
+                                            </span></span>
+                                        <a class="menu-title" href="http://localhost/pedagogie/deliberation/deliberationUe.php">Délibération par UE</a>
+                                    </div>
+                                </div>
 
-                        <div class="menu-item">
-                            <div class="menu-link">
-                                <span class="menu-icon"><span class="svg-icon svg-icon-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                        <path opacity="0.3" d="M3.5 21L20.5 21C21.3 21 22 20.3 22 19.5L22 8.5C22 7.7 21.3 7 20.5 7L10 7L7.4 4.4C7.2 4.2 6.8 4 6.4 4L3.5 4C2.7 4 2 4.7 2 5.5L2 19.5C2 20.3 2.7 21 3.5 21Z" fill="black"/>
-                                    </svg>
-                                </span></span>
-                                <a class="menu-title" href="http://localhost/pedagogie/deliberation/deliberationRegroupee.php">Délibération Regroupée</a>
-                            </div>
-                        </div>
+                                <div class="menu-item">
+                                    <div class="menu-link">
+                                        <span class="menu-icon"><span class="svg-icon svg-icon-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                                    <path opacity="0.3" d="M3.5 21L20.5 21C21.3 21 22 20.3 22 19.5L22 8.5C22 7.7 21.3 7 20.5 7L10 7L7.4 4.4C7.2 4.2 6.8 4 6.4 4L3.5 4C2.7 4 2 4.7 2 5.5L2 19.5C2 20.3 2.7 21 3.5 21Z" fill="black" />
+                                                </svg>
+                                            </span></span>
+                                        <a class="menu-title" href="http://localhost/pedagogie/deliberation/deliberationRegroupee.php">Délibération Regroupée</a>
+                                    </div>
+                                </div>
 
-                        <div class="menu-item">
-                            <div class="menu-link">
-                                <span class="menu-icon"><span class="svg-icon svg-icon-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
-                                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                            <polygon points="0 0 24 0 24 24 0 24"/>
-                                            <path d="M5.85714286,2 L13.7364114,2 C14.0910962,2 14.4343066,2.12568431 14.7051108,2.35473959 L19.4686994,6.3839416 C19.8056532,6.66894833 20,7.08787823 20,7.52920201 L20,20.0833333 C20,21.8738751 19.9795521,22 18.1428571,22 L5.85714286,22 C4.02044787,22 4,21.8738751 4,20.0833333 L4,3.91666667 C4,2.12612489 4.02044787,2 5.85714286,2 Z" fill="#000000" fill-rule="nonzero" opacity="0.3"/>
-                                            <rect fill="#000000" x="6" y="11" width="9" height="2" rx="1"/>
-                                            <rect fill="#000000" x="6" y="15" width="5" height="2" rx="1"/>
-                                            <rect fill="#000000" x="6" y="7" width="3" height="2" rx="1"/>
-                                        </g>
-                                    </svg>
-                                </span></span>
-                                <a class="menu-title" href="http://localhost/pedagogie/deliberation/PV/UE/pvParUE.php">PV par UE</a>
-                            </div>
-                        </div>
+                                <div class="menu-item">
+                                    <div class="menu-link">
+                                        <span class="menu-icon"><span class="svg-icon svg-icon-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+                                                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                                        <polygon points="0 0 24 0 24 24 0 24" />
+                                                        <path d="M5.85714286,2 L13.7364114,2 C14.0910962,2 14.4343066,2.12568431 14.7051108,2.35473959 L19.4686994,6.3839416 C19.8056532,6.66894833 20,7.08787823 20,7.52920201 L20,20.0833333 C20,21.8738751 19.9795521,22 18.1428571,22 L5.85714286,22 C4.02044787,22 4,21.8738751 4,20.0833333 L4,3.91666667 C4,2.12612489 4.02044787,2 5.85714286,2 Z" fill="#000000" fill-rule="nonzero" opacity="0.3" />
+                                                        <rect fill="#000000" x="6" y="11" width="9" height="2" rx="1" />
+                                                        <rect fill="#000000" x="6" y="15" width="5" height="2" rx="1" />
+                                                        <rect fill="#000000" x="6" y="7" width="3" height="2" rx="1" />
+                                                    </g>
+                                                </svg>
+                                            </span></span>
+                                        <a class="menu-title" href="http://localhost/pedagogie/deliberation/PV/UE/pvParUE.php">PV par UE</a>
+                                    </div>
+                                </div>
 
-                        <div class="menu-item">
-                            <div class="menu-link">
-                                <span class="menu-icon"><span class="svg-icon svg-icon-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                        <path d="M3 3h18v4H3zM3 9h18v4H3zM3 15h18v4H3z" fill="black" opacity="0.3"/>
-                                        <rect fill="black" x="3" y="3" width="18" height="2" rx="1"/>
-                                    </svg>
-                                </span></span>
-                                <a class="menu-title" href="http://localhost/pedagogie/deliberation/PV/semestre/pvParSemestre.php">PV par Semestre</a>
-                            </div>
-                        </div>
-                                <div class="menu-link " type="button" role="tab">
+                                <div class="menu-item">
+                                    <div class="menu-link">
+                                        <span class="menu-icon"><span class="svg-icon svg-icon-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                                    <path d="M3 3h18v4H3zM3 9h18v4H3zM3 15h18v4H3z" fill="black" opacity="0.3" />
+                                                    <rect fill="black" x="3" y="3" width="18" height="2" rx="1" />
+                                                </svg>
+                                            </span></span>
+                                        <a class="menu-title" href="http://localhost/pedagogie/deliberation/PV/semestre/pvParSemestre.php">PV par Semestre</a>
+                                    </div>
+                                </div>
+                                <div class="menu-link active" type="button" role="tab">
                                     <span class="menu-icon">
                                         <span class="svg-icon svg-icon-2">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                                <path d="M21.7 18.9L18.6 15.8C17.9 16.9 16.9 17.9 15.8 18.6L18.9 21.7C19.3 22.1 19.9 22.1 20.3 21.7L21.7 20.3C22.1 19.9 22.1 19.3 21.7 18.9Z" fill="black" />
-                                                <path opacity="0.3" d="M11 20C6 20 2 16 2 11C2 6 6 2 11 2C16 2 20 6 20 11C20 16 16 20 11 20ZM11 4C7.1 4 4 7.1 4 11C4 14.9 7.1 18 11 18C14.9 18 18 14.9 18 11C18 7.1 14.9 4 11 4ZM8 11C8 9.3 9.3 8 11 8C11.6 8 12 7.6 12 7C12 6.4 11.6 6 11 6C8.2 6 6 8.2 6 11C6 11.6 6.4 12 7 12C7.6 12 8 11.6 8 11Z" fill="black" />
+                                                <path d="M2 11C2 10.4477 2.44772 10 3 10H5C5.55228 10 6 10.4477 6 11V19C6 19.5523 5.55228 20 5 20H3C2.44772 20 2 19.5523 2 19V11Z" fill="black" />
+                                                <path opacity="0.3" d="M11 5C11 4.44772 11.4477 4 12 4H14C14.5523 4 15 4.44772 15 5V19C15 19.5523 14.5523 20 14 20H12C11.4477 20 11 19.5523 11 19V5Z" fill="black" />
+                                                <path d="M18 14C18 13.4477 18.4477 13 19 13H21C21.5523 13 22 13.4477 22 14V19C22 19.5523 21.5523 20 21 20H19C18.4477 20 18 19.5523 18 19V14Z" fill="black" />
                                             </svg>
                                         </span>
                                     </span>
+                                    <a class="menu-title" href="http://localhost/pedagogie/deliberation/resultat/ficheEtudiant.php">Statistique</a>
 
-                                    <a class="menu-title" href="http://localhost/pedagogie/searchEtudiant/searchEtudiant.php">Recherche Etudiant</a>
                                 </div>
-                                
-                                <div class="menu-link active" type="button" role="tab">
+                                <div class="menu-link" type="button" role="tab">
                                     <span class="menu-icon">
                                         <span class="svg-icon svg-icon-2">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -215,6 +234,16 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
 
                                     <a class="menu-title" href="http://localhost/pedagogie/EC_Note/calculMoyUE.php">Calcul Moyenne UE</a>
                                 </div>
+                                <div class="menu-item">
+                                    <div class="menu-link">
+                                        <span class="menu-icon"><span class="svg-icon svg-icon-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                                    <path d="M18 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V4C20 2.9 19.1 2 18 2ZM12 6C13.7 6 15 7.3 15 9C15 10.7 13.7 12 12 12C10.3 12 9 10.7 9 9C9 7.3 10.3 6 12 6ZM17 18H7V17C7 15.3 9.2 14 12 14C14.8 14 17 15.3 17 17V18Z" fill="black" opacity="0.3" />
+                                                </svg>
+                                            </span></span>
+                                        <a class="menu-title" href="../resultat/">Fiche Étudiant</a>
+                                    </div>
+                                </div>
                                 <div class="menu-link" type="button" role="tab">
                                     <span class="menu-icon">
                                         <span class="svg-icon svg-icon-2">
@@ -226,7 +255,6 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
 
                                     <a class="menu-title" href="http://localhost/pedagogie/EC_Note/consolidationSemestrielle.php">Consolidation Semestrielle</a>
                                 </div>
-
                             </div>
                         </div>
                     </div>
@@ -328,166 +356,131 @@ $statutUtilisateur = $_SESSION['statutUtilisateur'] ?? 1;
                 </div>
                 <div class="content d-flex flex-column flex-column-fluid" id="kt_content">
                     <div class="post d-flex flex-column-fluid" id="kt_post">
-                        <div id="kt_content_container" class="container-xxl">
-                            <div class="tab-pane w-100" id="nav-tachePost" role="tabpanel" aria-labelledby="nav-tachePost-tab">
+                        <div id="kt_content_container" class="container-fluid">
+                            <div class="container-fluid card">
+                                <div class="card-header border-0 pt-5" id="filterSession">
+                                    <h1 class="mb-4">Liste des Unités d'Enseignement (UE)</h1>
+                                    <div class="row g-3">
+                                        <div class="col-md-6 col-lg-3">
+                                            <label class="filter-label">
+                                                <i class="fas fa-graduation-cap me-1"></i> Filière
+                                            </label>
+                                            <select id="filiterFiliere" class="form-select filter-select">
+                                                <option value="">Sélectionner une filière</option>
+                                            </select>
+                                        </div>
 
-                                <div id="ue-form-container" class="form-container" style="display: none;">
-                                </div>
+                                        <div class="col-md-6 col-lg-2">
+                                            <label class="filter-label">
+                                                <i class="fas fa-layer-group me-1"></i> Cycle
+                                            </label>
+                                            <select id="filterCycle" class="form-select filter-select">
+                                                <option value="">Sélectionner un Cycle</option>
+                                                <option value="1">Licence</option>
+                                                <option value="2">Master</option>
+                                                <option value="3">Doctorat</option>
+                                            </select>
+                                        </div>
 
-                                <div class="mt-1 container-fluid card p-5">
-                                    <div class="card-header border-0 pt-5">
-                                        <h1 class="mb-4">Liste des Unités d'Enseignement (UE)</h1>
-                                        <div id="filterContainer" class="mb-3 row g-3 align-items-center">
-                                            
-                                            
+                                        <div class="col-md-6 col-lg-2">
+                                            <label class="filter-label">
+                                                <i class="fas fa-sliders-h me-1"></i> Niveau
+                                            </label>
+                                            <select id="filterNiveau" class="form-select filter-select">
+                                                <option value="">Sélectionner un Niveau</option>
+                                            </select>
                                         </div>
-                                        
-                                    </div>
-                                </div>
-                                <div class="card-body pt-0 bg-white rounded">
-                                    <div class="table-responsive">
-                                        <table id="tableUEEtudiant" class="table table-row-bordered gy-5">
-                                            <thead>
-                                                <tr class="fw-bold fs-6 text-muted">
-                                                    <th>Année</th>
-                                                    <th>CodeUE</th>
-                                                    <th>EC</th>
-                                                    <th>Semestre</th>
-                                                    <th>formation</th>
-                                                    <th class="d-none">filiere</th>
-                                                    <!-- <th>Nb étudiants</th> -->
-                                                    <th>action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody></tbody>
-                                            <tfoot></tfoot>
-                                        </table>
-                                    </div>
-                                </div>
-                                <!-- modal saisie note etudiant -->
-                                <div class="modal fade" id="saisieNoteModal" tabindex="-1" aria-labelledby="saisieNoteModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-xl modal-dialog-centered">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="saisieNoteModalLabel">Saisie des Notes des Étudiants</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
-                                                <div class="table-responsive">
-                                                    <div id="saisieNoteModalBody"></div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                                                <button type="button" class="btn btn-primary" id="saveNotesButton">Enregistrer les Notes</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- modal cosultation note etudiants  -->
-                                <div class="modal fade" id="consultationNoteModal" tabindex="-1" aria-labelledby="consultationNoteModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-xl modal-dialog-centered">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="consultationNoteModalLabel">Consultation des Notes des Étudiants</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
-                                                <div class="table-responsive">
-                                                    <div id="consultationNoteModalBody"></div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- etudiantsUEModal -->
-                                <div class="modal fade" id="etudiantsUEModal" tabindex="-1" aria-labelledby="etudiantsUEModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-xl modal-dialog-centered">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="etudiantsUEModalLabel">Étudiants inscrits à l'UE</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
-                                                <div class="table-responsive">
-                                                    <div id="etudiantsUEModalBody"></div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
 
+                                        <div class="col-md-6 col-lg-3">
+                                            <label class="filter-label">
+                                                <i class="fas fa-cogs me-1"></i> Option
+                                            </label>
+                                            <select id="filterOption" class="form-select filter-select">
+                                                <option value="">Sélectionner une option</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 col-lg-2">
+                                            <label class="filter-label">
+                                                <i class="fas fa-calendar-alt me-1"></i> Semestre
+                                            </label>
+                                            <select id="filterSemester" class="form-select filter-select">
+                                                <option value="">Sélectionner un Semestre</option>
+                                                <option value="1">Semestre 1</option>
+                                                <option value="2">Semestre 2</option>
+                                            </select>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="card-body" id="resultats">
+                                    <!-- COLONNE STATISTIQUES ET EC -->
+                                    <div>
+
+                                    </div>
+                                </div>
+                                <!-- <script src="./script.js"></script> -->
+                                <!-- <script src="../script.js"></script> -->
                             </div>
-                            <!-- <script src="./script.js"></script> -->
-                            <!-- <script src="../script.js"></script> -->
-                        </div>
-                        <div class="toolbar" id="kt_toolbar">
-                            <div id="kt_toolbar_container" class="container-fluid d-flex flex-stack">
-                                <div data-kt-swapper="true" data-kt-swapper-mode="prepend" data-kt-swapper-parent="{default: '#kt_content_container', 'lg': '#kt_toolbar_container'}" class="page-title d-flex align-items-center flex-wrap me-3 mb-5 mb-lg-0">
-                                    <h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1" id="structure">
-                                    </h1>
-                                    <span class="h-20px border-gray-200 border-start mx-4"></span>
-                                    <ul class="breadcrumb breadcrumb-separatorless fw-bold fs-7 my-1">
-                                        <a href="javascript:void(0)" class="text-dark text-hover-primary" id="service"></a>
+                            <div class="toolbar" id="kt_toolbar">
+                                <div id="kt_toolbar_container" class="container-fluid d-flex flex-stack">
+                                    <div data-kt-swapper="true" data-kt-swapper-mode="prepend" data-kt-swapper-parent="{default: '#kt_content_container', 'lg': '#kt_toolbar_container'}" class="page-title d-flex align-items-center flex-wrap me-3 mb-5 mb-lg-0">
+                                        <h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1" id="structure">
+                                        </h1>
                                         <span class="h-20px border-gray-200 border-start mx-4"></span>
+                                        <ul class="breadcrumb breadcrumb-separatorless fw-bold fs-7 my-1">
+                                            <a href="javascript:void(0)" class="text-dark text-hover-primary" id="service"></a>
+                                            <span class="h-20px border-gray-200 border-start mx-4"></span>
 
-                                        <li class="breadcrumb-item text-muted">
-                                            <a href="javascript:void(0)" class="text-muted text-hover-primary">acceuil</a>
-                                        </li>
-                                    </ul>
+                                            <li class="breadcrumb-item text-muted">
+                                                <a href="javascript:void(0)" class="text-muted text-hover-primary">acceuil</a>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+
                 </div>
             </div>
-
-
         </div>
-    </div>
-    </div>
 
-    <!-- Core libs (jQuery first) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <!-- Core libs (jQuery first) -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <!-- Global plugins and theme bundles -->
-    <script src="http://localhost/pedagogie/dist_assets/plugins/global/plugins.bundle.js"></script>
-    <script src="http://localhost/pedagogie/dist_assets/js/scripts.bundle.js"></script>
-    <script src="http://localhost/pedagogie/dist_assets/js/script.js"></script>
+        <!-- Global plugins and theme bundles -->
+        <script src="http://localhost/pedagogie/dist_assets/plugins/global/plugins.bundle.js"></script>
+        <script src="http://localhost/pedagogie/dist_assets/js/scripts.bundle.js"></script>
+        <script src="http://localhost/pedagogie/dist_assets/js/script.js"></script>
 
-    <!-- DataTables and other feature bundles -->
-    <script src="http://localhost/pedagogie/dist_assets/plugins/custom/datatables/datatables.bundle.js"></script>
-    <script src="http://localhost/pedagogie/dist_assets/plugins/custom/fullcalendar/fullcalendar.bundle.js"></script>
+        <!-- DataTables and other feature bundles -->
+        <script src="http://localhost/pedagogie/dist_assets/plugins/custom/datatables/datatables.bundle.js"></script>
+        <script src="http://localhost/pedagogie/dist_assets/plugins/custom/fullcalendar/fullcalendar.bundle.js"></script>
 
-    <!-- Optional / custom scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.0/dist/sweetalert2.min.js"></script>
-    <script src="http://localhost/pedagogie/dist_assets/js/custom/widgets.js"></script>
-    <script src="http://localhost/pedagogie/dist_assets/js/custom/apps/chat/chat.js"></script>
-    <script src="http://localhost/pedagogie/dist_assets/js/custom/modals/create-app.js"></script>
-    <script src="http://localhost/pedagogie/dist_assets/js/custom/modals/upgrade-plan.js"></script>
-    <script src="http://localhost/pedagogie/dist_assets/js/jquery.validate.min.js"></script>
+        <!-- Optional / custom scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.0/dist/sweetalert2.min.js"></script>
+        <script src="http://localhost/pedagogie/dist_assets/js/custom/widgets.js"></script>
+        <script src="http://localhost/pedagogie/dist_assets/js/custom/apps/chat/chat.js"></script>
+        <script src="http://localhost/pedagogie/dist_assets/js/custom/modals/create-app.js"></script>
+        <script src="http://localhost/pedagogie/dist_assets/js/custom/modals/upgrade-plan.js"></script>
+        <script src="http://localhost/pedagogie/dist_assets/js/jquery.validate.min.js"></script>
 
-    <!-- Page script (after all libs) -->
-    <script src="viewECNote.js"></script>
+        <!-- Page script (after all libs) -->
+        <script src="script.js"></script>
 
-    <!-- Utilities and third-party libs used by page -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-    <script>
-        $('.date-own').datepicker({
-            minViewMode: 2,
-            format: 'yyyy'
-        });
-    </script>
+        <!-- Utilities and third-party libs used by page -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+        <script>
+            $('.date-own').datepicker({
+                minViewMode: 2,
+                format: 'yyyy'
+            });
+        </script>
 
-    <!-- <script src="./maquette/script.js"></script> -->
+        <!-- <script src="./maquette/script.js"></script> -->
 </body>
 
 </html>

@@ -21,7 +21,7 @@ function initDataTableUEEtudiant() {
                     columns: [
                         { data: 'annee', title: '<strong>Année</strong>' },
                         // { data: 'dateSaisie', title: '<strong>Date Saisie</strong>' },
-                        { data: 'code', render: function(data) { return `<span class="badge text-primary">${data}</span>`; } },
+                        { data: 'codeEC', render: function(data) { return `<span class="badge text-primary">${data}</span>`; } },
                         { data: 'nomEC', render: function(data) { return `<strong>${data}</strong>`; } },
                         { data: 'semestre', render: function(data) { return `<span class="badge badge-light-info">Semestre ${data}</span>`; } },
                         { data: 'nomMaquette', render: function(data, type, row) {
@@ -31,7 +31,7 @@ function initDataTableUEEtudiant() {
                                 </div>`;
                             } 
                         },
-                        { data: 'nombreEtudiantsTotal', render: function(data) { return `<div class="text-center"><span class="badge badge-light-primary">${data}</span></div>`; } },
+                        // { data: 'nombreEtudiantsTotal', render: function(data) { return `<div class="text-center"><span class="badge badge-light-primary">${data}</span></div>`; } },
                         { data: 'filiere', render: function(data) { return `<div class="text-center d-none"><span class="badge badge-light-success">${data}</span></div>`; } },
                         // { data: 'etudiantsNiveauDifferent', render: function(data) { return `<div class="text-center"><span class="badge badge-light-danger">${data}</span></div>`; } },
                         { data: 'idUE', render: function(data, type, row) {
@@ -108,48 +108,209 @@ function redirectToSaisieNote(idUE, nomEc) {
     });
 }
 function updateFilters(rows) {
-    const uniqueAnnees = [...new Set(rows.map(row => row.annee))].sort((a, b) => b - a);
-    const uniqueDepartements = [...new Set(rows.map(row => row.filiere).filter(d => d))];
-    const uniqueOptions = [...new Set(rows.map(row => row.code_option).filter(o => o))];
-    const uniqueCycles = ['Licence', 'Master', 'Doctorat'];
-    const uniqueSemestres = ['1', '2'];
-    
-    
-    const filterAnnee = $('<div class="ms-4 col"><label for="filterAnnee" class="me-2 fw-bold">Année</label><select id="filterAnnee" class="form-select form-select-solid fw-bold w-auto"><option value="">Toutes les années</option></select></div>');
-    uniqueAnnees.forEach(annee => filterAnnee.find('#filterAnnee').append(`<option value="${annee}">${annee}</option>`));
-    
-    const filterDepartement = $('<div class="ms-4 col"><label for="filterDepartement" class="me-2 fw-bold">Département</label><select id="filterDepartement" class="form-select form-select-solid fw-bold w-auto"><option value="">Tous les départements</option></select></div>');
-    uniqueDepartements.forEach(dept => filterDepartement.find('#filterDepartement').append(`<option value="${dept}">${dept}</option>`));
-    
-    const filterOption = $('<div class="ms-4 col"><label for="filterOption" class="me-2 fw-bold">Option</label><select id="filterOption" class="form-select form-select-solid fw-bold"><option value="">Toutes les options</option></select></div>');
-    uniqueOptions.forEach(option => filterOption.find('#filterOption').append(`<option value="${option}">${option}</option>`));
+    $('#filterContainer').empty();
 
-    $('#filterContainer').append(filterDepartement).append(filterOption);
+    // --- Fonctions cascade ---
+    const getFilieresList = () =>
+        [...new Set(rows.map(r => r.filiere).filter(Boolean))].sort();
 
-    $('#filterAnnee, #filterDepartement, #filterOption, #filterSemestre, #niveau').off('change').on('change', function() {
-        const anneeFilter = $('#filterAnnee').val();
-        const departementFilter = $('#filterDepartement').val();
-        const optionFilter = $('#filterOption').val();
-        const cycleFilter = $('#filterCycle').val();
-        const semestreFilter = $('#filterSemestre').val();
-        const niveauFilter = $('#niveau').val();
-        const table = $('#tableUEEtudiant').DataTable();
-        
-        const filteredRows = rows.filter(row => 
-            (!anneeFilter || row.annee == anneeFilter) &&
-            (!departementFilter || row.filiere === departementFilter) &&
-            (!optionFilter || row.code_option === optionFilter) &&
-            (!semestreFilter || row.semestre == semestreFilter) &&
-            (!niveauFilter || row.niveauFormation == niveauFilter)
+    const getCyclesByFiliere = (filiere) => {
+        const filtered = filiere ? rows.filter(r => r.filiere === filiere) : rows;
+        // Extrait le premier mot du nomMaquette (Licence, Master, Doctorat...)
+        return [...new Set(filtered.map(r => {
+            const m = r.nomMaquette?.match(/^(\w+)/);
+            return m ? m[1] : null;
+        }).filter(Boolean))].sort();
+    };
 
+    const getNiveauxByFiliereCycle = (filiere, cycle) => {
+        let filtered = rows;
+        if (filiere) filtered = filtered.filter(r => r.filiere === filiere);
+        if (cycle)   filtered = filtered.filter(r => r.nomMaquette?.startsWith(cycle));
+        return [...new Set(filtered.map(r => r.niveauFormation).filter(Boolean))].sort();
+    };
+
+    const getOptionsByFiliereCycleNiveau = (filiere, cycle, niveau) => {
+        let filtered = rows;
+        if (filiere) filtered = filtered.filter(r => r.filiere === filiere);
+        if (cycle)   filtered = filtered.filter(r => r.nomMaquette?.startsWith(cycle));
+        if (niveau)  filtered = filtered.filter(r => r.niveauFormation === niveau);
+        return [...new Set(filtered.map(r => r.option).filter(Boolean))].sort();
+    };
+
+    const getSemestresByFiliereCycleNiveauOption = (filiere, cycle, niveau, option) => {
+        let filtered = rows;
+        if (filiere) filtered = filtered.filter(r => r.filiere === filiere);
+        if (cycle)   filtered = filtered.filter(r => r.nomMaquette?.startsWith(cycle));
+        if (niveau)  filtered = filtered.filter(r => r.niveauFormation === niveau);
+        if (option)  filtered = filtered.filter(r => r.option === option);
+        return [...new Set(filtered.map(r => r.semestre).filter(s => s != null))].sort((a, b) => a - b);
+    };
+
+    // --- Rebuild helpers ---
+    const rebuildCycles = (filiere) => {
+        $('#filterCycle').empty().append('<option value="">Tous les cycles</option>');
+        getCyclesByFiliere(filiere).forEach(c => {
+            $('#filterCycle').append(`<option value="${c}">${c}</option>`);
+        });
+    };
+
+    const rebuildNiveaux = (filiere, cycle) => {
+        $('#filterNiveau').empty().append('<option value="">Tous les niveaux</option>');
+        getNiveauxByFiliereCycle(filiere, cycle).forEach(n => {
+            $('#filterNiveau').append(`<option value="${n}">${n}</option>`);
+        });
+    };
+
+    const rebuildOptions = (filiere, cycle, niveau) => {
+        $('#filterOption').empty().append('<option value="">Toutes les options</option>');
+        getOptionsByFiliereCycleNiveau(filiere, cycle, niveau).forEach(o => {
+            $('#filterOption').append(`<option value="${o}">${o}</option>`);
+        });
+    };
+
+    const rebuildSemestres = (filiere, cycle, niveau, option) => {
+        $('#filterSemestre').empty().append('<option value="">Tous les semestres</option>');
+        getSemestresByFiliereCycleNiveauOption(filiere, cycle, niveau, option).forEach(s => {
+            $('#filterSemestre').append(`<option value="${s}">Semestre ${s}</option>`);
+        });
+    };
+
+    // --- Années (indépendant) ---
+    const uniqueAnnees = [...new Set(rows.map(r => r.annee).filter(Boolean))].sort((a, b) => b.localeCompare(a));
+
+    // --- Construction des selects ---
+    const filterAnnee = $(`
+        <div class="col-auto">
+            <label class="me-2 fw-bold">Année</label>
+            <select id="filterAnnee" class="form-select form-select-solid fw-bold w-auto">
+                <option value="">Toutes les années</option>
+            </select>
+        </div>`);
+    uniqueAnnees.forEach(a => filterAnnee.find('#filterAnnee').append(`<option value="${a}">${a}</option>`));
+
+    const filterFiliere = $(`
+        <div class="col-auto">
+            <label class="me-2 fw-bold">Filière</label>
+            <select id="filterFiliere" class="form-select form-select-solid fw-bold w-200px">
+                <option value="">Toutes les filières</option>
+            </select>
+        </div>`);
+    getFilieresList().forEach(f => filterFiliere.find('#filterFiliere').append(`<option value="${f}">${f}</option>`));
+
+    const filterCycle = $(`
+        <div class="col-auto">
+            <label class="me-2 fw-bold">Cycle</label>
+            <select id="filterCycle" class="form-select form-select-solid fw-bold w-auto">
+                <option value="">Tous les cycles</option>
+            </select>
+        </div>`);
+    getCyclesByFiliere('').forEach(c => filterCycle.find('#filterCycle').append(`<option value="${c}">${c}</option>`));
+
+    const filterNiveau = $(`
+        <div class="col-auto">
+            <label class="me-2 fw-bold">Niveau</label>
+            <select id="filterNiveau" class="form-select form-select-solid fw-bold w-auto">
+                <option value="">Tous les niveaux</option>
+            </select>
+        </div>`);
+    getNiveauxByFiliereCycle('', '').forEach(n => filterNiveau.find('#filterNiveau').append(`<option value="${n}">${n}</option>`));
+
+    const filterOption = $(`
+        <div class="col-auto">
+            <label class="me-2 fw-bold">Option</label>
+            <select id="filterOption" class="form-select form-select-solid fw-bold w-200px">
+                <option value="">Toutes les options</option>
+            </select>
+        </div>`);
+    getOptionsByFiliereCycleNiveau('', '', '').forEach(o => filterOption.find('#filterOption').append(`<option value="${o}">${o}</option>`));
+
+    const filterSemestre = $(`
+        <div class="col-auto">
+            <label class="me-2 fw-bold">Semestre</label>
+            <select id="filterSemestre" class="form-select form-select-solid fw-bold w-auto">
+                <option value="">Tous les semestres</option>
+            </select>
+        </div>`);
+    getSemestresByFiliereCycleNiveauOption('', '', '', '').forEach(s => filterSemestre.find('#filterSemestre').append(`<option value="${s}">Semestre ${s}</option>`));
+
+    $('#filterContainer')
+        .append(filterAnnee)
+        .append(filterFiliere)
+        .append(filterCycle)
+        .append(filterNiveau)
+        .append(filterOption)
+        .append(filterSemestre);
+
+    // --- Fonction centrale d'application des filtres ---
+    const applyFilters = () => {
+        const annee    = $('#filterAnnee').val();
+        const filiere  = $('#filterFiliere').val();
+        const cycle    = $('#filterCycle').val();
+        const niveau   = $('#filterNiveau').val();
+        const option   = $('#filterOption').val();
+        const semestre = $('#filterSemestre').val();
+
+        const filteredRows = rows.filter(row =>
+            (!annee    || row.annee            === annee)                    &&
+            (!filiere  || row.filiere          === filiere)                  &&
+            (!cycle    || row.nomMaquette?.startsWith(cycle))                &&
+            (!niveau   || row.niveauFormation  === niveau)                   &&
+            (!option   || row.option           === option)                   &&
+            (!semestre || String(row.semestre) === semestre)
         );
-        
+
+        const table = $('#tableUEEtudiant').DataTable();
         table.clear();
         table.rows.add(filteredRows);
         table.draw();
-    });
-}
+    };
 
+    // --- Événements cascade ---
+    $('#filterAnnee').off('change').on('change', applyFilters);
+
+    $('#filterFiliere').off('change').on('change', function() {
+        const filiere = $(this).val();
+        rebuildCycles(filiere);
+        rebuildNiveaux(filiere, '');
+        rebuildOptions(filiere, '', '');
+        rebuildSemestres(filiere, '', '', '');
+        $('#filterCycle, #filterNiveau, #filterOption, #filterSemestre').val('');
+        applyFilters();
+    });
+
+    $('#filterCycle').off('change').on('change', function() {
+        const filiere = $('#filterFiliere').val();
+        const cycle   = $(this).val();
+        rebuildNiveaux(filiere, cycle);
+        rebuildOptions(filiere, cycle, '');
+        rebuildSemestres(filiere, cycle, '', '');
+        $('#filterNiveau, #filterOption, #filterSemestre').val('');
+        applyFilters();
+    });
+
+    $('#filterNiveau').off('change').on('change', function() {
+        const filiere = $('#filterFiliere').val();
+        const cycle   = $('#filterCycle').val();
+        const niveau  = $(this).val();
+        rebuildOptions(filiere, cycle, niveau);
+        rebuildSemestres(filiere, cycle, niveau, '');
+        $('#filterOption, #filterSemestre').val('');
+        applyFilters();
+    });
+
+    $('#filterOption').off('change').on('change', function() {
+        const filiere = $('#filterFiliere').val();
+        const cycle   = $('#filterCycle').val();
+        const niveau  = $('#filterNiveau').val();
+        const option  = $(this).val();
+        rebuildSemestres(filiere, cycle, niveau, option);
+        $('#filterSemestre').val('');
+        applyFilters();
+    });
+
+    $('#filterSemestre').off('change').on('change', applyFilters);
+}
 function loadEtudiantsUE(idUE, nomUE, idOption, idMaquette, idNiveauFormation) {
     document.getElementById('etudiantsUEModalLabel').textContent = `Étudiants inscrits à l'UE: ${nomUE}`;
     fetch(`controllerECNote.php?action=listEtudiantsByUE&idUE=${idUE}`)

@@ -85,12 +85,8 @@ LEFT JOIN scolarite_inscription si on sip.idInscription = si.id
 JOIN scolarite_anneeuniversitaire sau on sip.idAnneeUniversitaire = sau.id
     AND sip.statut = 1
 WHERE m.idEtat = 3
-GROUP BY 
-    ue.id,
-    ue.code, 
-    ue.nom, 
-    m.nom,
-    m.idOption;";
+GROUP BY ue.id, sem.numInYear, ec.nom, ec.code, o.code_option, o.option, f.filiere, m.nom, m.idOption, m.id, o.idNiveauFormation, nf.code_niveau, sau.annee_academique
+ORDER BY ue.code";
     $stmt = $pdo->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);

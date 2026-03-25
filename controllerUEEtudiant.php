@@ -1,6 +1,6 @@
 <?php
 require_once 'config.php';
-
+require_once 'Crypto.php';
 $action = $_GET['action'] ?? 'listUEs';
 switch ($action) {
     case 'listUEs':
@@ -35,17 +35,6 @@ switch ($action) {
             echo json_encode(['error' => 'idUE parameter is required']);
         }
         break;
-    case 'listEtudiantsByInscription':
-        $idInscriptionPedagogique = $_GET['idInscriptionPedagogique'] ?? null;
-        if ($idInscriptionPedagogique) {
-            $etudiants = getEtudiantsByInscriptionPedagogique($pdo, $idInscriptionPedagogique);
-            header('Content-Type: application/json');
-            echo json_encode($etudiants);
-        } else {
-            http_response_code(400);
-            echo json_encode(['error' => 'idInscriptionPedagogique parameter is required']);
-        }
-        break;
     default:
         http_response_code(404);
         echo json_encode(['error' => 'Action not found']);
@@ -65,7 +54,9 @@ function getUEsWithInscriptions($pdo) {
     -- Calcul des étudiants en rattrapage / niveau différent
     COUNT(DISTINCT CASE 
         WHEN si.idOption != m.idOption THEN sipu.matricule 
-    END) AS etudiantsNiveauDifferent
+    END) AS etudiantsNiveauDifferent,
+    s.numInYear AS numSemestre,
+    s.id AS idSemestre
 FROM ue
 -- On part de l'UE et on joint les maquettes (une UE peut être dans plusieurs maquettes)
 JOIN maquette_ue mue ON ue.id = mue.id_ue
@@ -76,6 +67,7 @@ LEFT JOIN scolarite_inscription_pedagogique_ue sipu ON ue.id = sipu.idUE
 LEFT JOIN scolarite_inscription_pedagogique sip ON sipu.idInscriptionPedagogique = sip.id 
 LEFT JOIN scolarite_inscription si on sip.idInscription = si.id
     AND sip.statut = 1
+join semestre s on s.id = ue.id_semestre
 WHERE m.idEtat = 3
 GROUP BY 
     ue.id,
@@ -87,34 +79,48 @@ GROUP BY
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
-
 function getEtudiantsByUE($pdo, $idUE) {
-    $sql = "SELECT sipu.matricule from scolarite_inscription_pedagogique_ue sipu
-WHERE sipu.idUE = :idUE";
+
+    $sql = "SELECT 
+                se.*,
+                o.option,
+                niv.niveau,
+                sip.id      AS idInscriptionPedagogique,
+                m.id        AS idMaquette
+            FROM scolarite_inscription_pedagogique_ue sipu
+            JOIN scolarite_etudiants se 
+                ON sipu.matricule = se.matricule
+            JOIN (
+                SELECT *,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY matricule 
+                           ORDER BY dateEnregistrement DESC
+                       ) AS rn
+                FROM scolarite_inscription_pedagogique
+            ) sip ON se.matricule = sip.matricule AND sip.rn = 1
+            JOIN options o 
+                ON sip.idOption = o.id
+            JOIN niveauformation niv 
+                ON o.idNiveauFormation = niv.id
+            JOIN maquette m 
+                ON o.id = m.idOption
+            WHERE sipu.idUE = :idUE
+              AND m.idEtat = 3";
+
     $stmt = $pdo->prepare($sql);
-    $stmt->bindParam(':idUE', $idUE, PDO::PARAM_INT);
+    $stmt->bindValue(':idUE', $idUE, PDO::PARAM_INT);
     $stmt->execute();
-    $matricules = $stmt->fetchAll(PDO::FETCH_COLUMN);
-    $etudiants = [];
-    foreach ($matricules as $matricule) {
-        $etudiant = getEtudiant($pdo, $matricule);
-        if ($etudiant) {
-            $etudiants[] = $etudiant[0];
-        }
+    $etudiants = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $crypto = new Crypto();
+    foreach ($etudiants as &$etudiant) {
+        $etudiant['idInscriptionPedagogique'] = $crypto->encrypt(
+            (string) $etudiant['idInscriptionPedagogique']
+        );
     }
+    unset($etudiant);
+
     return $etudiants;
-}
-// Fonction pour récupérer les informations d'un étudiant par son matricule
-function getEtudiant($pdo, $matricule) {
-    $sql = "SELECT scolarite_etudiants.*,options.option, niveau FROM scolarite_etudiants 
-    join scolarite_inscription_pedagogique on scolarite_etudiants.matricule = scolarite_inscription_pedagogique.matricule
-    JOIN options ON scolarite_inscription_pedagogique.idOption = options.id
-    join niveauformation niv on options.idNiveauFormation = niv.id
-    WHERE scolarite_etudiants.matricule = :matricule
-    ORDER BY scolarite_inscription_pedagogique.dateEnregistrement LIMIT 1";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute(['matricule' => $matricule]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 function getScolariteInscriptionPedagogique($pdo) {
@@ -132,10 +138,3 @@ function getECByUE($pdo, $idUE) {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function getEtudiantsByInscriptionPedagogique($pdo, $idInscriptionPedagogique) {
-    $sql = "SELECT * FROM etudiant WHERE idInscriptionPedagogique = :idInscriptionPedagogique";
-    $stmt = $pdo->prepare($sql);
-    $stmt->bindParam(':idInscriptionPedagogique', $idInscriptionPedagogique, PDO::PARAM_INT);
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
